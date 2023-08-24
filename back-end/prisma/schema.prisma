@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int        @id @default(autoincrement())
+  name       String
+  email      String     @unique
+  senha      String
+  cpf        String     @unique
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  userType   UserType
+  Customer   Customer[]
+}
+
+model Customer {
+  id                Int                 @id @default(autoincrement())
+  photo             String?              // Alterado para ser opcional (pode ser NULL)
+  user              User                @relation(fields: [userId], references: [id])
+  userId            Int
+  balance           Balance[]
+  movementExtract   MovementExtract[]
+  favorite          Favorite[]
+  cartsByUser       CartsByUser[]
+  activeCartsByUser ActiveCartsByUser[]
+}
+
+model Balance {
+  id         Int      @id @default(autoincrement())
+  balance    Float
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId Int
+}
+
+model MovementExtract {
+  id           Int          @id @default(autoincrement())
+  value        Int
+  created_at   DateTime     @default(now())
+  movementType MovementType
+  customer     Customer     @relation(fields: [customerId], references: [id])
+  customerId   Int
+}
+
+model Product {
+  id              Int              @id @default(autoincrement())
+  name            String
+  description     String          
+  price           Float
+  photo           String
+  preparationTime Int               // Alterado para ser Int para armazenar o tempo de preparo em minutos
+  productType     ProductType
+  favorite        Favorite[]
+  ProductsByCart  ProductsByCart[]
+}
+
+model Favorite {
+  id         Int      @id @default(autoincrement())
+  customer   Customer @relation(fields: [customerId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+  customerId Int
+  productId  Int
+}
+
+model CartsByUser {
+  id                Int                 @id @default(autoincrement())
+  activeCart        ActiveCart
+  customer          Customer            @relation(fields: [customerId], references: [id])
+  customerId        Int
+  activeCartsByUser ActiveCartsByUser[]
+  ProductsByCart    ProductsByCart[]
+}
+
+model ActiveCartsByUser {
+  id            Int         @id @default(autoincrement())
+  customer      Customer    @relation(fields: [customerId], references: [id])
+  cartsByUser   CartsByUser @relation(fields: [cartsByUserId], references: [id])
+  customerId    Int
+  cartsByUserId Int
+}
+
+model ProductsByCart {
+  id            Int         @id @default(autoincrement())
+  created_at    DateTime    @default(now())
+  product       Product     @relation(fields: [productId], references: [id])
+  cartsByUser   CartsByUser @relation(fields: [cartsByUserId], references: [id])
+  productId     Int
+  cartsByUserId Int
+  qntd          Int
+  total_value   Float
+}
+
+enum UserType {
+  COLABORATOR
+  CUSTOMER
+}
+
+enum MovementType {
+  DEPOSIT
+  SPEND
+  RETURN
+}
+
+enum ProductType {
+  FRITO
+  ASSADO
+  PF
+  BEBIDA
+  LANCHE_NATURAL
+  SALADA_DE_FRUTA
+}
+
+enum ActiveCart {
+  ACTIVE
+  DISABLE
+}

@@ -1,0 +1,21 @@
+import { Controller, Get, HttpCode, ParseEnumPipe, Query } from '@nestjs/common';
+import { UserType } from '@prisma/client';
+import { UsersService } from './users.service';
+
+@Controller('users')
+export class UsersController {
+
+    constructor(private readonly usersService: UsersService){}
+
+    @Get()
+    @HttpCode(201)
+    getAllUsers(
+        @Query('userType') userType?: UserType
+    ){
+        const filters = {
+            ...(userType && {userType})
+        }
+        return this.usersService.getAllUsers(filters)
+    }    
+
+}
