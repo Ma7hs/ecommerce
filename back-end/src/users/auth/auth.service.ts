@@ -1,7 +1,7 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, HttpException } from '@nestjs/common';
 import { UserType } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { SignUPParams } from './interface/auth.interface';
+import { SignUPParams, SignINParams } from './interface/auth.interface';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs'
 
@@ -10,7 +10,7 @@ export class AuthService {
 
     constructor(private readonly prismaService: PrismaService){}
 
-    async singUpClient({name, email, cpf, password} : SignUPParams, userType: UserType){
+    async singUpClient({name, email, cpf, password}: SignUPParams, userType: UserType){
         const findUniqueEmail = await this.prismaService.user.findUnique({
             where: {
                 email: email
@@ -47,7 +47,7 @@ export class AuthService {
 
     }   
 
-    async singUpColaborator({name, email, cpf, password} : SignUPParams, userType: UserType){
+    async singUpColaborator({name, email, cpf, password}: SignUPParams, userType: UserType){
         const findUniqueEmail = await this.prismaService.user.findUnique({
             where: {
                 email: email
@@ -82,6 +82,26 @@ export class AuthService {
         return await this.generateJWT(colaborator.name, colaborator.id)
     }
 
+    async signIn({email, password}: SignINParams){
+        const findUser = await this.prismaService.user.findUnique({
+            where: {
+                email
+            }
+        })
+
+        if (!findUser) {
+            throw new HttpException("Invalid Credentials", 400)
+        }
+
+        const hashedPassword = findUser.senha
+        const isValidPassword = await bcrypt.compare(password, hashedPassword)
+        
+        if (!isValidPassword) {
+            throw new HttpException("Invalid Credentials", 400)
+        }
+        
+       return this.generateJWT(findUser.name, findUser.id)
+    }
 
     private async generateJWT(name: string, id: number){
         const token = jwt.sign({

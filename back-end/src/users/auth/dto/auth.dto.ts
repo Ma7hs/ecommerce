@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsString, IsEmail, IsStrongPassword } from "class-validator";
 
 export class SignUpDTO {
     @IsString()
     @IsNotEmpty()
     name: string;
 
-    @IsString()
+    @IsEmail()
     @IsNotEmpty()
     email: string;
 
@@ -18,3 +18,15 @@ export class SignUpDTO {
     cpf: string
 }
 
+export class SignInDTO {
+    @IsString()
+    @IsNotEmpty()
+    @IsEmail()
+    email: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @IsStrongPassword()
+    password: string;
+
+}

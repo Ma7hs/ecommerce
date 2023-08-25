@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, ParseEnumPipe, Query } from '@nestjs/common';
+import { Controller, Get, HttpCode, Param, Query, ParseIntPipe } from '@nestjs/common';
 import { UserType } from '@prisma/client';
 import { UsersService } from './users.service';
 
@@ -17,5 +17,14 @@ export class UsersController {
         }
         return this.usersService.getAllUsers(filters)
     }    
+
+    @Get(':id')
+    @HttpCode(201)
+    getUserById(
+        @Param('id', ParseIntPipe) id: number
+    ){
+        return this.usersService.getUserById(id)
+    }
+
 
 }

@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {UserType} from '@prisma/client'
-import { SignUpDTO } from './dto/auth.dto';
+import { SignInDTO, SignUpDTO } from './dto/auth.dto';
 
 
 @Controller('auth')
@@ -17,12 +17,16 @@ export class AuthController {
     }
 
     @Post("signup/colaborator")
-    async createColaborator(
+    createColaborator(
         @Body() body: SignUpDTO
     ){
         return this.authService.singUpColaborator(body, UserType.COLABORATOR)
     }
 
-
-
+    @Post('signin')
+    loginUser(
+        @Body() body: SignInDTO
+    ){
+        return this.authService.signIn(body)
+    }
 }

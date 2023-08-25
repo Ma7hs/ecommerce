@@ -6,6 +6,6 @@ export interface SignUPParams{
 }
 
 export interface SignINParams{
-    name: string,
+    email: string,
     password: string
 }
