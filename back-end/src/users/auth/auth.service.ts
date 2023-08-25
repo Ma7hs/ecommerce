@@ -38,7 +38,7 @@ export class AuthService {
                 name,
                 email,
                 cpf,
-                senha: hashingPassword,
+                password: hashingPassword,
                 userType: userType
             }
         })
@@ -74,7 +74,7 @@ export class AuthService {
                 name,
                 email,
                 cpf,
-                senha: hashingPassword,
+                password: hashingPassword,
                 userType: userType
             }
         })
@@ -93,7 +93,7 @@ export class AuthService {
             throw new HttpException("Invalid Credentials", 400)
         }
 
-        const hashedPassword = findUser.senha
+        const hashedPassword = findUser.password
         const isValidPassword = await bcrypt.compare(password, hashedPassword)
         
         if (!isValidPassword) {

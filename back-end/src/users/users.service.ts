@@ -1,10 +1,11 @@
-import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
+import { Injectable, HttpException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { FilterUsers } from './interface/users.interface';
+import { FilterUsers, UpdateUsersParams } from './interface/users.interface';
 import { UsersResponseDTO } from './dto/users.dto';
 import { UserType } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
-const selectUsers = {
+const userSelect = {
     id: true,
     name: true, 
     email: true,
@@ -12,51 +13,119 @@ const selectUsers = {
     userType: true
 }
 
+
 @Injectable()
 export class UsersService {
 
     constructor(private readonly prismaService: PrismaService){}
 
     async getAllUsers(filters: FilterUsers): Promise<UsersResponseDTO[]>{
-        return await this.prismaService.user.findMany({
+        const users = await this.prismaService.user.findMany({
             select: {
-                ...selectUsers,
+                ...userSelect
             },
             where: filters
-        })
+        });
+
+        if (!users) {
+            throw new NotFoundException()
+        }
+
+        return users.map((user) => { return new UsersResponseDTO(user) })
     }
 
     async getUserById(id: number): Promise<UsersResponseDTO>{
+        const user =  await this.prismaService.user.findUnique({
+            where: {
+                id: id
+            }
+        })
+
+        if(!user){
+            throw new NotFoundException()
+        }
+
+        if(user.userType == UserType.COLABORATOR){
+            const colaborator = await this.prismaService.user.findUnique({
+                select: {
+                    ...userSelect
+                },
+                where: user
+            })
+            return new UsersResponseDTO(colaborator)
+        }else if (user.userType == UserType.CUSTOMER) {
+            const customer = await this.prismaService.user.findUnique({
+                select: {
+                    ...userSelect
+                },
+                where: user
+            });
+        
+            if (!customer) {
+                throw new NotFoundException();
+            }
+    
+        
+            return new UsersResponseDTO(customer);
+        }
+    }
+
+    async updateUser(data: UpdateUsersParams, id: number){
         const user = await this.prismaService.user.findUnique({
             where: {
                 id: id
             }
         })
-        if(user.userType == UserType.COLABORATOR){
-            await this.prismaService.user.findUnique({
-                where: {
-                    id: id
-                },
-                select: {
-                    ...selectUsers
-                }
-            })
-        }else{
-            await this.prismaService.user.findUnique({
-                where: {
-                    id: id
-                },
-                select: {
-                    ...selectUsers,
-                    Customer: {
-                        select: {
-                            balance: true
-                        }
-                    }
-                }
-            })
+
+        if(!user){
+            throw new NotFoundException()
         }
-        return user
+
+        const updateUser = await this.prismaService.user.update({
+            data: data,
+            where: {
+                id: id
+            }
+        })
+
+        return new UsersResponseDTO(updateUser)
+
     }
 
+    async deleteUser(id: number){
+        const user =  await this.prismaService.user.findUnique({
+            where: {
+                id: id
+            }
+        })
+
+        if(!user){
+            throw new UnauthorizedException()
+        }
+
+        const customer = await this.prismaService.customer.findFirst({
+            where: {
+                userId: user.id
+            }
+        })
+   
+        await this.prismaService.balance.deleteMany({
+            where: {
+                customerId: customer.id
+            }
+           
+        })
+        await this.prismaService.customer.deleteMany({
+            where: {
+                userId: user.id
+            }  
+        })
+        // await this.prismaService.user.delete({
+        //     where: {
+        //         id: id
+        //     }
+        // })
+
+        return "User has been deleted"
+    }
 }
