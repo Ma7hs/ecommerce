@@ -43,6 +43,12 @@ export class AuthService {
             }
         })
         
+        await this.prismaService.customer.create({
+            data: {
+                userId: client.id
+            }
+        })
+
         return await this.generateJWT(client.name, client.id)
 
     }   

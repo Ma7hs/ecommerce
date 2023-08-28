@@ -112,19 +112,24 @@ export class UsersService {
         await this.prismaService.balance.deleteMany({
             where: {
                 customerId: customer.id
+            }   
+        })
+
+        await this.prismaService.movementExtract.deleteMany({
+            where: {
+                customerId: customer.id
             }
-           
         })
         await this.prismaService.customer.deleteMany({
             where: {
                 userId: user.id
             }  
         })
-        // await this.prismaService.user.delete({
-        //     where: {
-        //         id: id
-        //     }
-        // })
+        await this.prismaService.user.delete({
+            where: {
+                id: id
+            }
+        })
 
         return "User has been deleted"
     }

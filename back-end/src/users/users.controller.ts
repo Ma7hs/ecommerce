@@ -34,7 +34,7 @@ export class UsersController {
     ): Promise<UsersResponseDTO>{
         return this.usersService.updateUser(body, id)
     }
-
+    
     @Delete(":id")
     async deleteUser(
         @Param("id", ParseIntPipe) id: number

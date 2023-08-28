@@ -1,4 +1,4 @@
-import { UserType } from '@prisma/client';
+import { MovementType, UserType } from '@prisma/client';
 
 export class FilterUsers {
     userType?: UserType
@@ -9,4 +9,11 @@ export class UpdateUsersParams {
     password?: string;
     email?: string;
     photo?: string;
+}
+
+
+export class MovementExtract {
+    value: number
+    movementType?: MovementType
+    customerID: number
 }

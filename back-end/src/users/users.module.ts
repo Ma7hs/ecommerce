@@ -5,13 +5,15 @@ import { AuthController } from './auth/auth.controller';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { BalanceService } from './balance/balance.service';
+import { BalanceController } from './balance/balance.controller';
 
 @Module({
-  providers: [PrismaService, AuthService, UsersService, {
+  providers: [PrismaService, AuthService, UsersService, BalanceService, {
     provide: APP_INTERCEPTOR,
     useClass: ClassSerializerInterceptor
   }],
-  controllers: [AuthController, UsersController],
-  exports: [UsersModule, AuthService]
+  controllers: [AuthController, UsersController, BalanceController],
+  exports: [UsersModule, AuthService, BalanceService],
 })
 export class UsersModule {}
