@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { FilterUsers, UpdateUsersParams } from './interface/users.interface';
 import { UsersResponseDTO } from './dto/users.dto';
 import { UserType } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
+
 
 const userSelect = {
     id: true,
@@ -53,10 +53,20 @@ export class UsersService {
                 where: user
             })
             return new UsersResponseDTO(colaborator)
-        }else if (user.userType == UserType.CUSTOMER) {
+        } else if (user.userType == UserType.CUSTOMER) {
             const customer = await this.prismaService.user.findUnique({
                 select: {
-                    ...userSelect
+                    ...userSelect,
+                    Customer: {
+                        select: {
+                            balance:{
+                                select: {
+                                    balance: true
+                                }
+                            },
+                            photo: true
+                        }
+                    }
                 },
                 where: user
             });
@@ -64,13 +74,22 @@ export class UsersService {
             if (!customer) {
                 throw new NotFoundException();
             }
-    
-        
-            return new UsersResponseDTO(customer);
+
+            const userResponse = {
+                id: customer.id,
+                name: customer.name,
+                email: customer.email,
+                cpf: customer.cpf,
+                userType: customer.userType,
+                photo: customer.Customer[0]?.photo || null,
+                balance: customer.Customer[0]?.balance.map(i => i.balance) || 0
+            };
+
+            return new UsersResponseDTO(userResponse);
         }
     }
 
-    async updateUser(data: UpdateUsersParams, id: number){
+    async updateUser(data: UpdateUsersParams, id: number): Promise<UsersResponseDTO>{
         const user = await this.prismaService.user.findUnique({
             where: {
                 id: id
@@ -91,6 +110,8 @@ export class UsersService {
         return new UsersResponseDTO(updateUser)
 
     }
+
+    
 
     async deleteUser(id: number){
         const user =  await this.prismaService.user.findUnique({

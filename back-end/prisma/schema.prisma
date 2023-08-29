@@ -56,7 +56,7 @@ model Product {
   description     String
   price           Float
   photo           String
-  preparationTime Int // Alterado para ser Int para armazenar o tempo de preparo em minutos
+  preparationTime Int? // Alterado para ser Int para armazenar o tempo de preparo em minutos
   productType     ProductType
   favorite        Favorite[]
   ProductsByCart  ProductsByCart[]

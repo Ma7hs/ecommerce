@@ -9,12 +9,12 @@ export class BalanceController {
 
     constructor(private readonly balanceService: BalanceService){}
 
-    @Post(':cpf/:movementType/:value')
+    @Post(':cpf/:movementType')
     createBalance(
         @Param('cpf') cpf: string,
         @Param('movementType', new ParseEnumPipe(MovementType)) movementType: MovementType,
-        @Param('value', ParseFloatPipe) value: number,
+        @Body() {value}: UserBalanceDTO
     ): Promise<UserBalanceDTO>{  
-    return this.balanceService.balanceCustomer({cpf, movementType, value});
+        return this.balanceService.balanceCustomer({cpf, movementType, value});
     }
 }

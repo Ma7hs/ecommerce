@@ -11,7 +11,6 @@ export class UpdateUsersParams {
     photo?: string;
 }
 
-
 export class MovementExtract {
     value: number
     movementType?: MovementType

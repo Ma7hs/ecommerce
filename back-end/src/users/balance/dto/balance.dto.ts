@@ -19,7 +19,6 @@ export class UserBalanceDTO {
 
 export class UserBalanceResponseDTO{
     
-
     @IsNotEmpty()
     @IsString()
     cpf: string;

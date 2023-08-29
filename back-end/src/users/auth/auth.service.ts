@@ -15,23 +15,24 @@ export class AuthService {
             where: {
                 email: email
             }
-        })
+        });
+
         const findUniqueCPF = await this.prismaService.user.findUnique({
             where: {
                 cpf: cpf
             }
-        })
+        });
 
         if (findUniqueEmail) {
             throw new ConflictException()
-        }
+        };
 
         if (findUniqueCPF) {
             throw new ConflictException()
-        }
+        };
 
 
-        const hashingPassword = await bcrypt.hash(password, 5)
+        const hashingPassword = await bcrypt.hash(password, 5);
 
         const client = await this.prismaService.user.create({
             data: {
@@ -50,7 +51,6 @@ export class AuthService {
         })
 
         return await this.generateJWT(client.name, client.id)
-
     }   
 
     async singUpColaborator({name, email, cpf, password}: SignUPParams, userType: UserType){
