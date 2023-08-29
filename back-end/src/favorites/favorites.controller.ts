@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Delete, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
 
 @Controller('favorites')
@@ -11,6 +11,14 @@ export class FavoritesController {
         @Param('id', ParseIntPipe) id: number
     ){
         return this.FavoriteService.getAllFavorites(id)
+    }
+
+    @Post(':idCustomer/:idProduct')
+    createFavorite(
+        @Param('idCustomer', ParseIntPipe) idCustomer: number,
+        @Param('idProduct', ParseIntPipe) idProduct: number
+    ){
+        return this.FavoriteService.createFavorite(idCustomer, idProduct)
     }
 
     @Delete(':idCustomer/:idProduct')

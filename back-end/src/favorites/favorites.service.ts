@@ -32,8 +32,34 @@ export class FavoritesService {
                 },
             }
         })
-        
-        return new FavoritesResponseDTO(favorites)
+
+        return favorites
+
+    }
+
+    async createFavorite(idCustomer: number, idProduct: number){
+        const client = await this.prismaService.customer.findUnique({
+            where: {
+                id: idCustomer
+            }
+        })
+
+        if(!client){
+            throw new NotFoundException()
+        }
+
+        const product = await this.prismaService.product.findUnique({
+            where: {
+                id: idProduct
+            }
+        })
+
+        return this.prismaService.favorite.create({
+            data: {
+                productId: product.id,
+                customerId: idCustomer
+            }
+        })
 
     }
 
