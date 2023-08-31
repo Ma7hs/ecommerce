@@ -5,10 +5,11 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { FavoritesModule } from './favorites/favorites.module';
+import { ForgotPasswordModule } from './forgot-password/forgot-password.module';
 
 
 @Module({
-  imports: [UsersModule, ProductsModule, FavoritesModule],
+  imports: [UsersModule, ProductsModule, FavoritesModule, ForgotPasswordModule],
   controllers: [AppController],
   providers: [AppService, {
     provide: APP_INTERCEPTOR,
