@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as jwt from 'jsonwebtoken'
-import * as nodemailer from 'nodemailer'
 
 @Injectable()
 export class ForgotPasswordService {
@@ -22,7 +21,7 @@ export class ForgotPasswordService {
       throw new NotFoundException()
     }
 
-    const token = await jwt.sign({ id: user.id }, process.env.JSON_WEB_TOKEN_SECRET, { expiresIn: "100000" })
+    const token = await jwt.sign({ id: user.id }, process.env.JSON_WEB_TOKEN_SECRET, { expiresIn: "1000000" })
     console.log(token)
 
     var transporter = nodemailer.createTransport({

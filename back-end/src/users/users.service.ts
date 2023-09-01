@@ -74,18 +74,8 @@ export class UsersService {
             if (!customer) {
                 throw new NotFoundException();
             }
-
-            const userResponse = {
-                id: customer.id,
-                name: customer.name,
-                email: customer.email,
-                cpf: customer.cpf,
-                userType: customer.userType,
-                photo: customer.Customer[0]?.photo || null,
-                balance: customer.Customer[0]?.balance.map(i => i.balance) || 0
-            };
-
-            return new UsersResponseDTO(userResponse);
+            
+            return new UsersResponseDTO(customer);
         }
     }
 
