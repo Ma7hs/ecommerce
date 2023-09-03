@@ -6,10 +6,11 @@ import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { ForgotPasswordModule } from './forgot-password/forgot-password.module';
+import { CartModule } from './cart/cart.module';
 
 
 @Module({
-  imports: [UsersModule, ProductsModule, FavoritesModule, ForgotPasswordModule],
+  imports: [UsersModule, ProductsModule, FavoritesModule, ForgotPasswordModule, CartModule],
   controllers: [AppController],
   providers: [AppService, {
     provide: APP_INTERCEPTOR,

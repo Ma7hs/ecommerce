@@ -44,9 +44,16 @@ export class AuthService {
             }
         })
         
-        await this.prismaService.customer.create({
+        const customer = await this.prismaService.customer.create({
             data: {
                 userId: client.id
+            }
+        })
+
+        await this.prismaService.balance.create({
+            data: {
+                customerId: customer.id,
+                balance: 0
             }
         })
 
