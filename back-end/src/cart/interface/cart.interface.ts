@@ -1,7 +1,13 @@
 import { StatusCart } from "@prisma/client";
 
 export interface CreateCartParams{
-    products: number[]
+    status: StatusCart,
+    products: product[]
+}
+
+class product {
+    product: number;
+    qntd: number
 }
 
 export interface UpdateCartStatus{

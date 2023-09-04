@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 import { Product, StatusCart } from '@prisma/client'; // Certifique-se de importar o enum StatusCart
 
 export class CreateCartDTO {
@@ -6,8 +6,18 @@ export class CreateCartDTO {
   status: StatusCart = 'ACTIVE'
 
   @IsNotEmpty()
+  @IsArray()
+  products: ProductDTO[]; // Array de IDs de produtos
+}
+
+class ProductDTO {
+  @IsNotEmpty()
   @IsNumber({}, { each: true, message: 'Product IDs must be numbers.' })
-  products: number[]; // Array de IDs de produtos
+  product: number;
+
+  @IsNotEmpty()
+  @IsNumber({}, { each: true, message: 'Quantity must be numbers.' })
+  qntd: number;
 }
 
 export class UpdateStatusCartDTO{

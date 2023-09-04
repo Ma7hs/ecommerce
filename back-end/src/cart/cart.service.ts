@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { CartsByUser, StatusCart } from '@prisma/client';
+import { MovementType } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateCartDTO } from './dto/cart.dto';
 import { CreateCartParams, UpdateCartStatus } from './interface/cart.interface';
 
 const selectProducts = {
@@ -17,8 +16,7 @@ export class CartService {
 
   constructor(private readonly prismaService: PrismaService) { }
 
-  async createCartByUser({ products }: CreateCartParams, id: number) {
-    const status: StatusCart = 'ACTIVE'; // Defina o status como 'ACTIVE' por padrão
+  async createCartByUser({ products, status = 'ACTIVE' }: CreateCartParams, id: number) {
 
     const user = await this.prismaService.user.findUnique({
       where: {
@@ -36,10 +34,12 @@ export class CartService {
       }
     });
 
+    const idProducts = products.map((i) => i[0])
+
     const findProducts = await this.prismaService.product.findMany({
       where: {
         id: {
-          in: products
+          in: idProducts
         }
       }
     });
@@ -59,31 +59,56 @@ export class CartService {
 
       if (cartTotalValue > verifyBalance.balance) {
         throw new UnauthorizedException("Insufficient balance");
-      }
+      } else {
 
-      const cart = await this.prismaService.cartsByUser.create({
-        data: {
-          customerId: customer.id,
-          status: status // Use o status definido anteriormente
-        },
-      });
-
-      for (const product of findProducts) {
-        await this.prismaService.productsByCart.create({
+        const cart = await this.prismaService.cartsByUser.create({
           data: {
-            cartsByUserId: cart.id,
-            productId: product.id,
-            qntd: 1,
-            total_value: product.price,
+            customerId: customer.id,
+            status: status
           },
         });
+
+        await this.prismaService.movementExtract.create({
+          data: {
+            movementType: MovementType.SPEND,
+            value: cartTotalValue, 
+            customerId: customer.id,
+          },
+        });
+
+        const newBalance = verifyBalance.balance - cartTotalValue;
+
+        await this.prismaService.balance.updateMany({
+          data: {
+            balance: newBalance,
+          },
+          where: {
+            customerId: customer.id,
+          },
+        });
+
+        for (const product of findProducts) {
+          const findProduct = products.find((p) => p[0] === product.id);
+          
+          if(!findProduct){
+            throw new NotFoundException()
+          } else {
+            const productQntd = findProduct[1];
+            console.log(productQntd)
+            await this.prismaService.productsByCart.create({
+              data: {
+                cartsByUserId: cart.id,
+                productId: product.id,
+                qntd: productQntd,
+                total_value: product.price * productQntd,
+              },
+            });
+          }
+        }
+        return 'Cart has been created'
       }
-
-      return 'Cart has been created'
-      
     }
-  }
-
+}
 
   async getCartsByUser(id: number) {
 
@@ -93,13 +118,29 @@ export class CartService {
       }
     })
 
-    if(!user){
+    if (!user) {
       throw new NotFoundException('User not found in our system!')
+    }
+
+    const customer = await this.prismaService.customer.findFirst({
+      where: {
+        userId: user.id
+      }
+    });
+
+    const findShoppingCart = await this.prismaService.cartsByUser.findFirst({
+      where: {
+        customerId: customer.id
+      }
+    })
+
+    if(!findShoppingCart){
+      throw new NotFoundException("User without carts")
     }
 
     const carts = await this.prismaService.cartsByUser.findMany({
       where: {
-        customerId: user.id,
+        customerId: customer.id,
       },
       select: {
         id: true,
@@ -127,6 +168,8 @@ export class CartService {
         }
       },
     });
+
+   
 
     const transformedCarts = carts.map((cart) => ({
       id: cart.id,

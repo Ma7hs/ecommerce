@@ -7,15 +7,26 @@ export class FavoritesService {
 
     constructor(private readonly prismaService: PrismaService){}
 
-    async getAllFavorites(id: number){
-        const client = await this.prismaService.customer.findUnique({
+    async getAllFavorites(idUser: number){
+
+        const user = await this.prismaService.user.findUnique({
             where: {
-                id: id
+                id: idUser
             }
         })
 
+        console.log(user)
+
+        const client = await this.prismaService.customer.findFirst({
+            where: {
+                userId: user.id
+            }
+        })
+
+        console.log(client)
+
         if(!client){
-            throw new NotFoundException()
+            throw new NotFoundException("Client not found")
         }
 
         const favorites = await this.prismaService.favorite.findMany({
@@ -37,10 +48,18 @@ export class FavoritesService {
 
     }
 
-    async createFavorite(idCustomer: number, idProduct: number){
-        const client = await this.prismaService.customer.findUnique({
+    async createFavorite(idUser: number, idProduct: number){
+
+        const user = await this.prismaService.user.findUnique({
             where: {
-                id: idCustomer
+                id: idUser
+            }
+        })
+
+
+        const client = await this.prismaService.customer.findFirst({
+            where: {
+                userId: user.id
             }
         })
 
@@ -57,7 +76,7 @@ export class FavoritesService {
         return this.prismaService.favorite.create({
             data: {
                 productId: product.id,
-                customerId: idCustomer
+                customerId: client.id
             }
         })
 
