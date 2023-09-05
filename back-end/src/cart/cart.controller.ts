@@ -9,10 +9,10 @@ export class CartController {
 
     @Post(':id')
     createCartByUser(
-        @Body() {products}: CreateCartDTO,
+        @Body() {products, status}: CreateCartDTO,
         @Param('id', ParseIntPipe) id: number
     ) {
-        return this.cartsByUserService.createCartByUser({products}, id);
+        return this.cartsByUserService.createCartByUser({products, status}, id);
     }
 
     @Get(':id')

@@ -17,9 +17,7 @@ export class CartService {
 
   constructor(private readonly prismaService: PrismaService) { }
 
-  async createCartByUser({ products }: CreateCartParams, id: number) {
-    const status: StatusCart = 'ACTIVE'; // Defina o status como 'ACTIVE' por padrão
-
+  async createCartByUser({ products,  status = 'ACTIVE'}: CreateCartParams, id: number) {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: id
@@ -64,8 +62,8 @@ export class CartService {
       const cart = await this.prismaService.cartsByUser.create({
         data: {
           customerId: customer.id,
-          status: status // Use o status definido anteriormente
-        },
+          status: status 
+          },
       });
 
       for (const product of findProducts) {

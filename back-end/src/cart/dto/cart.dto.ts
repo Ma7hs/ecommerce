@@ -2,6 +2,7 @@ import { IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 import { Product, StatusCart } from '@prisma/client'; // Certifique-se de importar o enum StatusCart
 
 export class CreateCartDTO {
+  @IsOptional()
   @IsEnum(StatusCart)
   status: StatusCart = 'ACTIVE'
 
