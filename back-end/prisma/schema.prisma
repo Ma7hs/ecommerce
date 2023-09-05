@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
   binaryTargets = ["native"]
@@ -8,118 +11,106 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model activecartsbyuser {
-  id            Int         @id @default(autoincrement())
-  customerId    Int
-  cartsByUserId Int
-  cartsbyuser   cartsbyuser @relation(fields: [cartsByUserId], references: [id], map: "ActiveCartsByUser_cartsByUserId_fkey")
-  customer      customer    @relation(fields: [customerId], references: [id], map: "ActiveCartsByUser_customerId_fkey")
-
-  @@index([cartsByUserId], map: "ActiveCartsByUser_cartsByUserId_fkey")
-  @@index([customerId], map: "ActiveCartsByUser_customerId_fkey")
+model User {
+  id         Int        @id @default(autoincrement())
+  name       String
+  email      String     @unique
+  password   String
+  cpf        String     @unique
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  userType   UserType
+  Customer   Customer[]
 }
 
-model balance {
+model Customer {
+  id                Int                 @id @default(autoincrement())
+  photo             String? // Alterado para ser opcional (pode ser NULL)
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId            Int
+  balance           Balance[]
+  movementExtract   MovementExtract[]
+  favorite          Favorite[]
+  cartsByUser       CartsByUser[]
+  activeCartsByUser ActiveCartsByUser[]
+}
+
+model Balance {
   id         Int      @id @default(autoincrement())
   balance    Float
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   customerId Int
-  customer   customer @relation(fields: [customerId], references: [id], map: "Balance_customerId_fkey")
-
-  @@index([customerId], map: "Balance_customerId_fkey")
 }
 
-model cartsbyuser {
-  id                Int                 @id @default(autoincrement())
-  customerId        Int
-  activeCartEnum    String
-  activecartsbyuser activecartsbyuser[]
-  customer          customer            @relation(fields: [customerId], references: [id], map: "CartsByUser_customerId_fkey")
-  productsbycart    productsbycart[]
-
-  @@index([customerId], map: "CartsByUser_customerId_fkey")
-}
-
-model customer {
-  id                Int                 @id @default(autoincrement())
-  photo             String?
-  userId            Int
-  activecartsbyuser activecartsbyuser[]
-  balance           balance[]
-  cartsbyuser       cartsbyuser[]
-  user              user                @relation(fields: [userId], references: [id], map: "Customer_userId_fkey")
-  favorite          favorite[]
-  movementextract   movementextract[]
-
-  @@index([userId], map: "Customer_userId_fkey")
-}
-
-model favorite {
-  id         Int      @id @default(autoincrement())
-  customerId Int
-  productId  Int
-  customer   customer @relation(fields: [customerId], references: [id], map: "Favorite_customerId_fkey")
-  product    product  @relation(fields: [productId], references: [id], map: "Favorite_productId_fkey")
-
-  @@index([customerId], map: "Favorite_customerId_fkey")
-  @@index([productId], map: "Favorite_productId_fkey")
-}
-
-model movementextract {
-  id           Int                          @id @default(autoincrement())
+model MovementExtract {
+  id           Int          @id @default(autoincrement())
   value        Int
-  created_at   DateTime                     @default(now())
-  movementType movementextract_movementType
+  created_at   DateTime     @default(now())
+  movementType MovementType
+  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   customerId   Int
-  customer     customer                     @relation(fields: [customerId], references: [id], map: "MovementExtract_customerId_fkey")
-
-  @@index([customerId], map: "MovementExtract_customerId_fkey")
 }
 
-model product {
-  id              Int                 @id @default(autoincrement())
+model Product {
+  id              Int              @id @default(autoincrement())
   name            String
   description     String
   price           Float
   photo           String
-  preparationTime Int?
-  productType     product_productType
-  favorite        favorite[]
-  productsbycart  productsbycart[]
+  preparationTime Int? // Alterado para ser Int para armazenar o tempo de preparo em minutos
+  productType     ProductType
+  favorite        Favorite[]
+  ProductsByCart  ProductsByCart[]
 }
 
-model productsbycart {
+model Favorite {
+  id         Int      @id @default(autoincrement())
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  customerId Int
+  productId  Int
+}
+
+model CartsByUser {
+  id                Int                 @id @default(autoincrement())
+  status            StatusCart
+  customer          Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  customerId        Int
+  activeCartsByUser ActiveCartsByUser[]
+  ProductsByCart    ProductsByCart[]
+}
+
+model ActiveCartsByUser {
+  id            Int         @id @default(autoincrement())
+  customer      Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  cartsByUser   CartsByUser @relation(fields: [cartsByUserId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  customerId    Int
+  cartsByUserId Int
+}
+
+model ProductsByCart {
   id            Int         @id @default(autoincrement())
   created_at    DateTime    @default(now())
+  product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  cartsByUser   CartsByUser @relation(fields: [cartsByUserId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   productId     Int
   cartsByUserId Int
   qntd          Int
   total_value   Float
-  cartsbyuser   cartsbyuser @relation(fields: [cartsByUserId], references: [id], map: "ProductsByCart_cartsByUserId_fkey")
-  product       product     @relation(fields: [productId], references: [id], map: "ProductsByCart_productId_fkey")
-
-  @@index([cartsByUserId], map: "ProductsByCart_cartsByUserId_fkey")
-  @@index([productId], map: "ProductsByCart_productId_fkey")
 }
 
-model user {
-  id         Int           @id @default(autoincrement())
-  name       String
-  email      String        @unique(map: "User_email_key")
-  cpf        String        @unique(map: "User_cpf_key")
-  created_at DateTime      @default(now())
-  updated_at DateTime
-  userType   user_userType
-  password   String
-  customer   customer[]
+enum UserType {
+  COLABORATOR
+  CUSTOMER
 }
 
-enum movementextract_movementType {
+enum MovementType {
   DEPOSIT
   SPEND
   RETURN
 }
 
-enum product_productType {
+enum ProductType {
   FRITO
   ASSADO
   PF
@@ -128,7 +119,7 @@ enum product_productType {
   SALADA_DE_FRUTA
 }
 
-enum user_userType {
-  COLABORATOR
-  CUSTOMER
+enum StatusCart {
+  ACTIVE
+  DISABLE
 }
