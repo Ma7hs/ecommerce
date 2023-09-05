@@ -1,24 +1,14 @@
-version: "3"
-
+version: "3.9"
 services:
-  app:
-    build: .  # Defina aqui o caminho para o contexto de build, neste caso, é o diretório atual onde o arquivo docker-compose.yml está localizado.
-    depends_on:
-      - redis
-    links:
-      - redis
-    command: npm run start:dev
-    ports:
-      - 3000:3000
-    volumes:
-      - .:/usr/app
-      - /usr/app/node_modules
-    environment:
-      NODE_ENV: dev  # Corrigido para NODE_ENV (em maiúsculas e com underscore)
-      PORT: 3000
   redis:
-    image: bitnami/redis:latest
-    expose:
-      - 6379
+    image: redis:6.0
+    ports:
+      - 6379:6379
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: ghcr.io/joeferner/redis-commander:latest
     environment:
-      REDIS_PASSWORD: easy4u
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"

@@ -1,14 +1,19 @@
-import { Controller, Get, HttpCode, Param, Query, ParseIntPipe, Patch, Body, Delete } from '@nestjs/common';
+import { Controller, Get, HttpCode, Param, Query, ParseIntPipe, Patch, Body, Delete, Inject, UseInterceptors } from '@nestjs/common';
+import { CacheKey, CacheInterceptor, CacheTTL, CACHE_MANAGER  } from '@nestjs/cache-manager'; 
 import { UserType } from '@prisma/client';
 import { UsersService } from './users.service';
 import { UsersResponseDTO, UpdateUserDTO } from './dto/users.dto';
+import { Cache } from 'cache-manager';
 
 @Controller('users')
 export class UsersController {
 
-    constructor(private readonly usersService: UsersService){}
+    constructor(private readonly usersService: UsersService, @Inject(CACHE_MANAGER) cacheManager: Cache){}
 
     @Get()
+    @UseInterceptors(CacheInterceptor)
+    @CacheTTL(30)
+    @CacheKey("all-users")
     @HttpCode(201)
     getAllUsers(
         @Query('userType') userType?: UserType

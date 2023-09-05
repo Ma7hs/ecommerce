@@ -15,16 +15,12 @@ export class FavoritesService {
             }
         })
 
-        console.log(user)
-
         const client = await this.prismaService.customer.findFirst({
             where: {
                 userId: user.id
             }
         })
-
-        console.log(client)
-
+        
         if(!client){
             throw new NotFoundException("Client not found")
         }

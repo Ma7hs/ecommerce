@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FilterUsers, UpdateUsersParams } from './interface/users.interface';
 import { UsersResponseDTO } from './dto/users.dto';
@@ -7,7 +7,7 @@ import { UserType } from '@prisma/client';
 
 const userSelect = {
     id: true,
-    name: true, 
+    name: true,
     email: true,
     cpf: true,
     userType: true
@@ -17,35 +17,40 @@ const userSelect = {
 @Injectable()
 export class UsersService {
 
-    constructor(private readonly prismaService: PrismaService){}
+    constructor(private readonly prismaService: PrismaService) {}
+    async getAllUsers(filters: FilterUsers): Promise<UsersResponseDTO[]> {
+        try {
+            const users = await this.prismaService.user.findMany({
+                select: {
+                    ...userSelect
+                },
+                where: filters
+            })
 
-    async getAllUsers(filters: FilterUsers): Promise<UsersResponseDTO[]>{
-        const users = await this.prismaService.user.findMany({
-            select: {
-                ...userSelect
-            },
-            where: filters
-        });
+            if (!users) {
+                throw new NotFoundException()
+            }
 
-        if (!users) {
-            throw new NotFoundException()
+            console.timeEnd("Find users: ")
+            return users.map((user) => { return new UsersResponseDTO(user) })
+
+        } catch (e) {
+            throw new BadRequestException(e)
         }
-
-        return users.map((user) => { return new UsersResponseDTO(user) })
     }
 
-    async getUserById(id: number): Promise<UsersResponseDTO>{
-        const user =  await this.prismaService.user.findUnique({
+    async getUserById(id: number): Promise<UsersResponseDTO> {
+        const user = await this.prismaService.user.findUnique({
             where: {
                 id: id
             }
         })
 
-        if(!user){
+        if (!user) {
             throw new NotFoundException()
         }
 
-        if(user.userType == UserType.COLABORATOR){
+        if (user.userType == UserType.COLABORATOR) {
             const colaborator = await this.prismaService.user.findUnique({
                 select: {
                     ...userSelect
@@ -59,7 +64,7 @@ export class UsersService {
                     ...userSelect,
                     Customer: {
                         select: {
-                            balance:{
+                            balance: {
                                 select: {
                                     balance: true
                                 }
@@ -70,23 +75,23 @@ export class UsersService {
                 },
                 where: user
             });
-        
+
             if (!customer) {
                 throw new NotFoundException();
             }
-            
+
             return new UsersResponseDTO(customer);
         }
     }
 
-    async updateUser(data: UpdateUsersParams, id: number): Promise<UsersResponseDTO>{
+    async updateUser(data: UpdateUsersParams, id: number): Promise<UsersResponseDTO> {
         const user = await this.prismaService.user.findUnique({
             where: {
                 id: id
             }
         })
 
-        if(!user){
+        if (!user) {
             throw new NotFoundException()
         }
 
@@ -101,16 +106,16 @@ export class UsersService {
 
     }
 
-    
 
-    async deleteUser(id: number){
-        const user =  await this.prismaService.user.findUnique({
+
+    async deleteUser(id: number) {
+        const user = await this.prismaService.user.findUnique({
             where: {
                 id: id
             }
         })
 
-        if(!user){
+        if (!user) {
             throw new UnauthorizedException()
         }
 
@@ -119,11 +124,11 @@ export class UsersService {
                 userId: user.id
             }
         })
-   
+
         await this.prismaService.balance.deleteMany({
             where: {
                 customerId: customer.id
-            }   
+            }
         })
 
         await this.prismaService.movementExtract.deleteMany({
@@ -134,7 +139,7 @@ export class UsersService {
         await this.prismaService.customer.deleteMany({
             where: {
                 userId: user.id
-            }  
+            }
         })
         await this.prismaService.user.delete({
             where: {
