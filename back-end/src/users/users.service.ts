@@ -1,9 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FilterUsers, UpdateUsersParams } from './interface/users.interface';
 import { UsersResponseDTO } from './dto/users.dto';
 import { UserType } from '@prisma/client';
-
 
 const userSelect = {
     id: true,
@@ -17,7 +16,12 @@ const userSelect = {
 @Injectable()
 export class UsersService {
 
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly prismaService: PrismaService,
+        
+        
+    ) { }
+
     async getAllUsers(filters: FilterUsers): Promise<UsersResponseDTO[]> {
         try {
             const users = await this.prismaService.user.findMany({
@@ -30,8 +34,6 @@ export class UsersService {
             if (!users) {
                 throw new NotFoundException()
             }
-
-            console.timeEnd("Find users: ")
             return users.map((user) => { return new UsersResponseDTO(user) })
 
         } catch (e) {
@@ -80,7 +82,17 @@ export class UsersService {
                 throw new NotFoundException();
             }
 
-            return new UsersResponseDTO(customer);
+            const response = {
+                name: customer.name,
+                cpf: customer.cpf,
+                email: customer.email,
+                userType: customer.userType,
+                photo: customer?.Customer?.[0]?.photo || null,
+                balance: customer?.Customer?.[0]?.balance?.[0].balance || null
+            };
+            
+            
+            return new UsersResponseDTO(response);
         }
     }
 
@@ -106,9 +118,7 @@ export class UsersService {
 
     }
 
-
-
-    async deleteUser(id: number) {
+    async deleteUser(id: number): Promise<string> {
         const user = await this.prismaService.user.findUnique({
             where: {
                 id: id
@@ -119,31 +129,9 @@ export class UsersService {
             throw new UnauthorizedException()
         }
 
-        const customer = await this.prismaService.customer.findFirst({
-            where: {
-                userId: user.id
-            }
-        })
-
-        await this.prismaService.balance.deleteMany({
-            where: {
-                customerId: customer.id
-            }
-        })
-
-        await this.prismaService.movementExtract.deleteMany({
-            where: {
-                customerId: customer.id
-            }
-        })
-        await this.prismaService.customer.deleteMany({
-            where: {
-                userId: user.id
-            }
-        })
         await this.prismaService.user.delete({
             where: {
-                id: id
+                id: user.id
             }
         })
 

@@ -8,16 +8,21 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { ClassSerializerInterceptor } from "@nestjs/common";
 import { APP_INTERCEPTOR } from "@nestjs/core";
-import { RedisModule } from './redis/redis.module';
+import { CacheInterceptor, CacheModule } from "@nestjs/cache-manager";
+import * as redisStore from 'cache-manager-redis-store'
 
 @Module({
   imports: [
-    RedisModule,
     UsersModule,
     ProductsModule,
     FavoritesModule,
     ForgotPasswordModule,
     CartModule,
+    CacheModule.register({
+      store: redisStore,
+      isGlobal: true,
+      ttl: 10
+    }),
   ],
   controllers: [AppController],
   providers: [
@@ -26,6 +31,10 @@ import { RedisModule } from './redis/redis.module';
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,
     },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor
+    }
   ]
 })
 export class AppModule {}

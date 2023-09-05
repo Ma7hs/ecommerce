@@ -9,11 +9,11 @@ import { BalanceService } from './balance/balance.service';
 import { BalanceController } from './balance/balance.controller';
 
 @Module({
-    providers: [PrismaService, AuthService, UsersService, BalanceService, {
+  providers: [PrismaService, AuthService, UsersService, BalanceService, {
     provide: APP_INTERCEPTOR,
     useClass: ClassSerializerInterceptor
   }],
   controllers: [AuthController, UsersController, BalanceController],
   exports: [UsersModule, AuthService, BalanceService],
 })
-export class UsersModule {}
+export class UsersModule { }

@@ -1,18 +1,17 @@
 import { Controller, Get, HttpCode, Param, Query, ParseIntPipe, Patch, Body, Delete, Inject, UseInterceptors } from '@nestjs/common';
-import { CacheKey, CacheInterceptor, CacheTTL, CACHE_MANAGER  } from '@nestjs/cache-manager'; 
+import { CacheKey, CacheInterceptor, CacheTTL  } from '@nestjs/cache-manager'; 
 import { UserType } from '@prisma/client';
 import { UsersService } from './users.service';
 import { UsersResponseDTO, UpdateUserDTO } from './dto/users.dto';
-import { Cache } from 'cache-manager';
 
 @Controller('users')
 export class UsersController {
 
-    constructor(private readonly usersService: UsersService, @Inject(CACHE_MANAGER) cacheManager: Cache){}
+    constructor(private readonly usersService: UsersService){}
 
     @Get()
     @UseInterceptors(CacheInterceptor)
-    @CacheTTL(30)
+    @CacheTTL(10)
     @CacheKey("all-users")
     @HttpCode(201)
     getAllUsers(
@@ -25,6 +24,9 @@ export class UsersController {
     }    
 
     @Get(':id')
+    @UseInterceptors(CacheInterceptor)
+    @CacheTTL(10)
+    @CacheKey("user-id")
     @HttpCode(201)
     getUserById(
         @Param('id', ParseIntPipe) id: number
@@ -41,10 +43,10 @@ export class UsersController {
     }
     
     @Delete(":id")
-    async deleteUser(
+     deleteUser(
         @Param("id", ParseIntPipe) id: number
     ) {
-        await this.usersService.deleteUser(id)
+        this.usersService.deleteUser(id)
         return 'User has been deleted'
     }
 
