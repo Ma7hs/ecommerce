@@ -21,7 +21,9 @@ import * as redisStore from 'cache-manager-redis-store'
     CacheModule.register({
       store: redisStore,
       isGlobal: true,
-      ttl: 10
+      ttl: 10,
+      host: "redis",
+      port: 6379,
     }),
   ],
   controllers: [AppController],

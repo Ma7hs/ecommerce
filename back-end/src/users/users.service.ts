@@ -17,9 +17,7 @@ const userSelect = {
 export class UsersService {
 
     constructor(
-        private readonly prismaService: PrismaService,
-        
-        
+        private readonly prismaService: PrismaService,  
     ) { }
 
     async getAllUsers(filters: FilterUsers): Promise<UsersResponseDTO[]> {
