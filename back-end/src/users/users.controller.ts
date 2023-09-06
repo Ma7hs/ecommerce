@@ -24,9 +24,6 @@ export class UsersController {
     }    
 
     @Get(':id')
-    @UseInterceptors(CacheInterceptor)
-    @CacheTTL(10)
-    @CacheKey("user-id")
     @HttpCode(201)
     getUserById(
         @Param('id', ParseIntPipe) id: number
