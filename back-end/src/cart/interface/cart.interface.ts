@@ -12,6 +12,6 @@ class product {
 
 export interface UpdateCartStatus{
     cartId: number,
-    userId: number,
+    id: number,
     status: StatusCart
 }

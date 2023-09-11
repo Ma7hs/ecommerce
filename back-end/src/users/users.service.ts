@@ -86,7 +86,7 @@ export class UsersService {
                 email: customer.email,
                 userType: customer.userType,
                 photo: customer?.Customer?.[0]?.photo || null,
-                balance: customer?.Customer?.[0]?.balance?.[0].balance || null
+                balance: customer?.Customer?.[0]?.balance?.[0].balance || 0
             };
             
             

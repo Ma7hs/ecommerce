@@ -1,17 +1,24 @@
 import { MovementType, UserType } from '@prisma/client';
 
-export class FilterUsers {
+export interface FilterUsers {
     userType?: UserType
 }
 
-export class UpdateUsersParams {
+export interface UserInfo {
+    name: string;
+    id: number;
+    exp: number;
+    iat: number;
+}
+
+export interface UpdateUsersParams {
     name?: string;
     password?: string;
     email?: string;
     photo?: string;
 }
 
-export class MovementExtract {
+export interface MovementExtract {
     value: number
     movementType?: MovementType
     customerID: number

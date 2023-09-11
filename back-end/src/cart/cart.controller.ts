@@ -1,34 +1,38 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, Patch } from '@nestjs/common';
 import { CartService } from './cart.service';
-import { CartResponseDTO, CreateCartDTO, UpdateStatusCartDTO } from './dto/cart.dto';
+import { CreateCartDTO, UpdateStatusCartDTO } from './dto/cart.dto';
+import { User } from 'src/users/decorator/user.decorator';
+import { UserInfo } from 'src/users/interface/users.interface';
 
 
 @Controller('carts-by-user')
 export class CartController {
     constructor(private readonly cartsByUserService: CartService) { }
 
-    @Post(':id')
+    @Post()
     createCartByUser(
-        @Body() {products, status}: CreateCartDTO,
-        @Param('id', ParseIntPipe) id: number
+        @Body() { products, status }: CreateCartDTO,
+        @User() user: UserInfo
     ) {
-        return this.cartsByUserService.createCartByUser({products, status}, id);
+        console.log({ user })
+        return this.cartsByUserService.createCartByUser({ products, status }, user.id);
     }
 
-    @Get(':id')
+    @Get()
     getAllCartsByUser(
-        @Param('id', ParseIntPipe) id: number
+        @User() user: UserInfo
     ) {
-        return this.cartsByUserService.getCartsByUser(id)
+        return this.cartsByUserService.getCartsByUser(user.id)
     }
 
-    @Patch(':id/:cartId')
+
+    @Patch(':cartId')
     updateStatusCart(
         @Body() { status }: UpdateStatusCartDTO,
-        @Param('id', ParseIntPipe) userId: number,
+        @User() {id}: UserInfo,
         @Param('cartId', ParseIntPipe) cartId: number
     ) {
-        return this.cartsByUserService.updateStatusCart({ userId, cartId, status })
+        return this.cartsByUserService.updateStatusCart({ id,cartId, status })
     }
 
 }
