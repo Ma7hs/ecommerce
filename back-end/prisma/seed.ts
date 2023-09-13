@@ -20,7 +20,6 @@ async function generateFakeData() {
         data: {
           name,
           email,
-          cpf,
           password,
           userType: UserType.CUSTOMER, // Defina o userType conforme necessário
         },

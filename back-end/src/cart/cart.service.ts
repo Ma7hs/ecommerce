@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { MovementType } from '@prisma/client';
+import { MovementType, StoreByStatus} from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCartParams, UpdateCartStatus } from './interface/cart.interface';
 
@@ -39,7 +39,7 @@ export class CartService {
     })
 
   }
-
+  
   async createCartByUser({ products, status = 'ACTIVE' }: CreateCartParams, userId: number) {
     const customer = await this.findCustomerById(userId);
     console.log(customer);

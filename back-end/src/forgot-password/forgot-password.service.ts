@@ -37,13 +37,8 @@ export class ForgotPasswordService {
       from: 'easy4u.devs@gmail.com',
       to: email,
       subject: `Enviando um email de boa noite para a ${user.name}`,
-      text: 'Boa noite meu amor, dorme com Deus amo você chatinha! <3 :)',
-      html: 'Embedded image: <img src="cid:easy4u.devs@gmail.com"/>',
-      attachments: [{
-        filename: 'redis.jfif',
-        path: './src/forgot-password/redis.jfif',
-        cid: 'easy4u.devs@gmail.com' //same cid value as in the html img src
-    }]
+      text: 'Redefinicao de senha! <3 :)',
+      // html: 'Embedded image: <img src="cid:easy4u.devs@gmail.com"/>',
       // text: `http://localhost:5173/reset-password/${user.id}/${token}`
     };
 

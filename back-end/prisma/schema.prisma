@@ -15,13 +15,14 @@ model User {
   id         Int        @id @default(autoincrement())
   name       String
   email      String     @unique
+  confirmed  Boolean    @default(false)
   password   String
-  cpf        String     @unique
   created_at DateTime   @default(now())
   updated_at DateTime   @updatedAt
   userType   UserType
   Customer   Customer[]
 }
+
 
 model Customer {
   id                Int                 @id @default(autoincrement())
@@ -99,9 +100,16 @@ model ProductsByCart {
   total_value   Float
 }
 
+model StoreStatus{
+  id            Int @id @default(autoincrement())
+  created_at    DateTime @default(now())
+  status        StoreByStatus
+}
+
 enum UserType {
   COLABORATOR
   CUSTOMER
+  ADMIN
 }
 
 enum MovementType {
@@ -122,4 +130,9 @@ enum ProductType {
 enum StatusCart {
   ACTIVE
   DISABLE
+}
+
+enum StoreByStatus {
+  OPEN
+  CLOSED
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {UserType} from '@prisma/client'
 import { SignInDTO, SignUpDTO } from './dto/auth.dto';
@@ -13,6 +13,7 @@ export class AuthController {
     createCostumer(
         @Body() body: SignUpDTO
     ){
+        console.log(body)
         return this.authService.singUpClient(body, UserType.CUSTOMER)
     }
 
@@ -21,6 +22,13 @@ export class AuthController {
         @Body() body: SignUpDTO
     ){
         return this.authService.singUpColaborator(body, UserType.COLABORATOR)
+    }
+
+    @Post("signup/confirm/:token")
+    confirmEmailFromUser(
+        @Param("token") token: string
+    ){  
+        return this.authService.verificateConfirmation(token)
     }
 
     @Post('signin')

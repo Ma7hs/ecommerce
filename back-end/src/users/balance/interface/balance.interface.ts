@@ -1,7 +1,7 @@
 import { MovementType } from '@prisma/client';
 
 export class BalanceParams {
-    cpf: string;
+    email: string;
     value: number
     movementType: MovementType
 }

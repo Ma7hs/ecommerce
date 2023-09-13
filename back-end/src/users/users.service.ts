@@ -8,7 +8,6 @@ const userSelect = {
     id: true,
     name: true,
     email: true,
-    cpf: true,
     userType: true
 }
 
@@ -82,7 +81,6 @@ export class UsersService {
 
             const response = {
                 name: customer.name,
-                cpf: customer.cpf,
                 email: customer.email,
                 userType: customer.userType,
                 photo: customer?.Customer?.[0]?.photo || null,

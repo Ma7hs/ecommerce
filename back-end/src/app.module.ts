@@ -25,7 +25,7 @@ import { UserInterceptor } from "./users/interceptors/users.interceptor";
       ttl: 10,
       host: "redis",
       port: 6379,
-    }),
+    })
   ],
   controllers: [AppController],
   providers: [

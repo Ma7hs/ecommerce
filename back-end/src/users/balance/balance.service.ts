@@ -9,10 +9,10 @@ export class BalanceService {
 
     constructor(private readonly prismaService: PrismaService) { }
 
-    async balanceCustomer({ cpf, value, movementType }: BalanceParams) {
+    async balanceCustomer({ email, value, movementType }: BalanceParams) {
         const user = await this.prismaService.user.findUnique({
             where: {
-                cpf: cpf,
+                email: email,
             },
         });
     
