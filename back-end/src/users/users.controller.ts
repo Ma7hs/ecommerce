@@ -42,9 +42,8 @@ export class UsersController {
     @Delete(":id")
      deleteUser(
         @Param("id", ParseIntPipe) id: number
-    ) {
-        this.usersService.deleteUser(id)
-        return 'User has been deleted'
+    ): Promise<Object> {
+        return this.usersService.deleteUser(id)
     }
 
 }

@@ -114,7 +114,7 @@ export class UsersService {
 
     }
 
-    async deleteUser(id: number): Promise<string> {
+    async deleteUser(id: number): Promise<Object> {
         const user = await this.prismaService.user.findUnique({
             where: {
                 id: id
@@ -131,6 +131,6 @@ export class UsersService {
             }
         })
 
-        return {message: 'User deleted successfully}
+        return {message: 'User deleted successfully'}
     }
 }
