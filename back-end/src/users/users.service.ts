@@ -122,7 +122,7 @@ export class UsersService {
         })
 
         if (!user) {
-            throw new UnauthorizedException()
+            throw new NotFoundException()
         }
 
         await this.prismaService.user.delete({
@@ -131,6 +131,6 @@ export class UsersService {
             }
         })
 
-        return "User has been deleted"
+        return {message: 'User deleted successfully}
     }
 }

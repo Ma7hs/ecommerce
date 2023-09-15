@@ -10,26 +10,8 @@ export class BalanceService {
     constructor(private readonly prismaService: PrismaService) { }
 
     async balanceCustomer({ email, value, movementType }: BalanceParams) {
-        const user = await this.prismaService.user.findUnique({
-            where: {
-                email: email,
-            },
-        });
-    
-        if (!user) {
-            throw new NotFoundException();
-        }
-    
-        const customer = await this.prismaService.customer.findFirst({
-            where: {
-                userId: user.id,
-            },
-        });
-    
-        if (!customer) {
-            throw new NotFoundException("Customer not found for the given user ID");
-        }
-    
+        const customer = await this.findCustomer(email)
+
         const movementExtract = await this.prismaService.movementExtract.create({
             data: {
                 movementType: movementType,
@@ -78,5 +60,31 @@ export class BalanceService {
         return new UserBalanceResponseDTO(movementExtract);
     }
     
+    async findCustomer(email: string){
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                email: email,
+            },
+        });
+    
+        if (!user) {
+            throw new NotFoundException();
+        }
+
+        console.log(user)
+
+        const customer = await this.prismaService.customer.findFirst({
+            where: {
+                userId: user.id,
+            },
+        });
+    
+        if (!customer) {
+            throw new NotFoundException("Customer not found for the given user ID");
+        }
+
+        return customer
+    }
+
 }
 

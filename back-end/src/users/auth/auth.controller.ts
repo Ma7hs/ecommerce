@@ -13,7 +13,6 @@ export class AuthController {
     createCostumer(
         @Body() body: SignUpDTO
     ){
-        console.log(body)
         return this.authService.singUpClient(body, UserType.CUSTOMER)
     }
 
@@ -22,6 +21,13 @@ export class AuthController {
         @Body() body: SignUpDTO
     ){
         return this.authService.singUpColaborator(body, UserType.COLABORATOR)
+    }
+
+    @Post("signup/admin")
+    createAdmin(
+        @Body() body: SignUpDTO
+    ){
+        return this.authService.signUpAdmin(body, UserType.ADMIN)
     }
 
     @Post("signup/confirm/:token")

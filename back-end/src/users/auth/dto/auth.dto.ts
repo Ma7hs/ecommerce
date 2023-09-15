@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsEmail, IsStrongPassword } from "class-validator";
+import { IsNotEmpty, IsString, IsEmail } from "class-validator";
 
 export class SignUpDTO {
     @IsString()
@@ -12,10 +12,6 @@ export class SignUpDTO {
     @IsString()
     @IsNotEmpty()
     password: string;
-
-    @IsString()
-    @IsNotEmpty()
-    cpf: string
 }
 
 export class SignInDTO {
@@ -26,7 +22,6 @@ export class SignInDTO {
 
     @IsString()
     @IsNotEmpty()
-    @IsStrongPassword()
     password: string;
 
 }

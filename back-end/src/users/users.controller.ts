@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, Param, Query, ParseIntPipe, Patch, Body, Delete, Inject, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, HttpCode, Param, Query, ParseIntPipe, Patch, Body, Delete, Inject, UseInterceptors, ParseEnumPipe } from '@nestjs/common';
 import { CacheKey, CacheInterceptor, CacheTTL  } from '@nestjs/cache-manager'; 
 import { UserType } from '@prisma/client';
 import { UsersService } from './users.service';
@@ -31,7 +31,7 @@ export class UsersController {
         return this.usersService.getUserById(id)
     }
 
-    @Patch(':id')
+    @Patch(':token')
     updateUser(
         @Param('id', ParseIntPipe) id: number,
         @Body() body: UpdateUserDTO

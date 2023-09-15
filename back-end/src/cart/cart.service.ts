@@ -1,5 +1,5 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { MovementType, StoreByStatus} from '@prisma/client';
+import { Injectable, NotFoundException, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { MovementType} from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCartParams, UpdateCartStatus } from './interface/cart.interface';
 
@@ -199,6 +199,7 @@ export class CartService {
     return "Status has been updated"
 
   }
+  
 
 }
 

@@ -2,19 +2,18 @@ import { Body, Controller, Param, ParseEnumPipe, ParseFloatPipe, Patch, Post } f
 import { MovementType } from '@prisma/client';
 import { UserBalanceDTO } from './dto/balance.dto';
 import { BalanceService } from './balance.service';
-import { BalanceParams } from './interface/balance.interface';
 
 @Controller('users/balance')
 export class BalanceController {
 
     constructor(private readonly balanceService: BalanceService){}
 
-    @Post(':email/:movementType')
+    @Post('/:movementType')
     createBalance(
-        @Param('email') email: string,
         @Param('movementType', new ParseEnumPipe(MovementType)) movementType: MovementType,
-        @Body() {value}: UserBalanceDTO
+        @Body() {email, value}: UserBalanceDTO
     ): Promise<UserBalanceDTO>{  
         return this.balanceService.balanceCustomer({email, movementType, value});
     }
+
 }

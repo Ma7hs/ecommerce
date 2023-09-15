@@ -1,12 +1,13 @@
 import { MovementType } from "@prisma/client";
 import { Exclude } from "class-transformer";
-import { IsEnum, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class UserBalanceDTO {
 
     @IsNotEmpty()
     @IsString()
-    cpf: string;
+    @IsEmail()
+    email: string;
 
     @IsNumber()
     @IsNotEmpty()
@@ -21,7 +22,8 @@ export class UserBalanceResponseDTO{
     
     @IsNotEmpty()
     @IsString()
-    cpf: string;
+    @IsEmail()
+    email: string;
 
     @Exclude()
     created_at: Date;
