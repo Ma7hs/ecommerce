@@ -22,8 +22,7 @@ export class ForgotPasswordService {
     }
 
     const token = await jwt.sign({ id: user.id }, process.env.JSON_WEB_TOKEN_SECRET, { expiresIn: "1000000" })
-    console.log(token)
-
+  
     var transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -73,7 +72,7 @@ export class ForgotPasswordService {
       </html>`,
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
+    transporter.sendMail(mailOptions, function (error: Error, info:  any) {
       if (error) {
         console.error("Error sending email:", error);
       } else {

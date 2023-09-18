@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, HttpException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, HttpException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { UserType } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SignUPParams, SignINParams } from './interface/auth.interface';
@@ -69,6 +69,10 @@ export class AuthService {
     async signIn({ email, password }: SignINParams) {
         const findUser = await this.findEmailByUser(email)
 
+        if(!findUser){
+            throw new NotFoundException({message: "User not found"})
+        }
+
         if (findUser.userType === UserType.CUSTOMER) {
             if(findUser.confirmed === false){
                 throw new UnauthorizedException({ message: "Por favor confirme seu email, voce nao esta autorizado a entrar!" })
@@ -132,7 +136,7 @@ export class AuthService {
         }, process.env.JSON_WEB_TOKEN_SECRET, {
             expiresIn: 600
         })
-        return token
+        return { statusCode: 201, message: token}
     }
 
     private async findEmailByUser(email: string) {
@@ -142,13 +146,7 @@ export class AuthService {
             }
         })
 
-        if (!user) {
-           return null
-        }
-
-        if(user){
-            throw new ConflictException({message: "User already exists"})
-        }
+       return user
     }
 
     private async sendConfirmationEmail(email: string, name: string, id: number) {
