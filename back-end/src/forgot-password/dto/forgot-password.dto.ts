@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class ForgotPasswordDTO{
     @IsNotEmpty()
@@ -11,4 +11,13 @@ export class UpdatePasswordDTO{
     @IsNotEmpty()
     @IsString()
     password: string;
+}
+
+export class ForgotPasswordResponseDTO {
+    message: string;
+    statusCode: number;
+
+    constructor(partial: Partial<ForgotPasswordResponseDTO>) {
+        Object.assign(this, partial)
+    }
 }

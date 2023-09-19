@@ -10,12 +10,16 @@ export class ForgotPasswordController {
     constructor(private readonly password: ForgotPasswordService){}
 
     @Post()
-    forgotPassword(
+    async forgotPassword(
         @Body() {email}: ForgotPasswordDTO
     ){
-        this.password.forgotPassword(email)
-        return `Email sent to ${email}` 
-    }
+        try {
+            const result = await this.password.forgotPassword(email);
+            return result; 
+          } catch (error) {
+            throw new UnauthorizedException("Erro ao processar a solicitação de redefinição de senha");
+          }
+        }
 
     @Post(':id/:token')
     async updatePassword(

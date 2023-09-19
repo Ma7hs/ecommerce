@@ -1,13 +1,14 @@
 import { Injectable, NotFoundException, } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as jwt from 'jsonwebtoken'
+import { ForgotPasswordResponseDTO } from './dto/forgot-password.dto';
 
 @Injectable()
 export class ForgotPasswordService {
 
   constructor(private readonly prismaService: PrismaService) { }
 
-  async forgotPassword(email: string) {
+  async forgotPassword(email: string): Promise<ForgotPasswordResponseDTO> {
 
     var nodemailer = require('nodemailer')
 
@@ -18,12 +19,12 @@ export class ForgotPasswordService {
     })
 
     if (!user) {
-      throw new NotFoundException()
+      return new ForgotPasswordResponseDTO({message: "Usuário não encontrado", statusCode: 401})
     }
 
     const token = await jwt.sign({ id: user.id }, process.env.JSON_WEB_TOKEN_SECRET, { expiresIn: "1000000" })
   
-    var transporter = nodemailer.createTransport({
+    let transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_SENDER,
@@ -31,7 +32,7 @@ export class ForgotPasswordService {
       }
     });
 
-    var mailOptions = {
+    let mailOptions = {
       from: "Equipe Easy4U",
       to: email,
       subject: `Solicitação de redefinição de senha`,
@@ -72,14 +73,15 @@ export class ForgotPasswordService {
       </html>`,
     };
 
-    transporter.sendMail(mailOptions, function (error: Error, info:  any) {
-      if (error) {
-        console.error("Error sending email:", error);
-      } else {
-        console.log("Email sent to:", email);
-        return "Password has been updated";
-      }
-    });
+    return new Promise<ForgotPasswordResponseDTO>((resolve, reject) => {
+      transporter.sendMail(mailOptions, (error: Error, info: any) => {
+          if (error) {
+              resolve(new ForgotPasswordResponseDTO({ message: "Erro ao enviar o email", statusCode: 400 }));
+          } else {
+              resolve(new ForgotPasswordResponseDTO({ message: `Email enviado com sucesso! Verifique seu email`, statusCode: 201 }));
+          }
+      });
+  });
 
   }
 
@@ -104,4 +106,5 @@ export class ForgotPasswordService {
     return `Password from ${user.name} has been updated`
 
   }
+
 }
