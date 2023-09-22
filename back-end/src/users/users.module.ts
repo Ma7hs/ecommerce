@@ -14,10 +14,6 @@ import { GoogleOauthGuard } from '../guard/google-oauth.guard';
   providers: [PrismaService, AuthService, UsersService, BalanceService, GoogleStrategy, {
     provide: APP_INTERCEPTOR,
     useClass: ClassSerializerInterceptor
-  },
-  {
-    provide: APP_GUARD,
-    useClass: GoogleOauthGuard
   }],
   controllers: [AuthController, UsersController, BalanceController],
   exports: [UsersModule, AuthService, BalanceService],
