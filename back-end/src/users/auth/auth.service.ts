@@ -1,13 +1,14 @@
-import { ConflictException, Injectable, HttpException, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { Injectable, HttpException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { UserType } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SignUPParams, SignINParams } from './interface/auth.interface';
 import * as jwt from 'jsonwebtoken';
-import * as bcrypt from 'bcryptjs'
-import * as nodemailer from 'nodemailer'
+import * as bcrypt from 'bcryptjs';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
-export class AuthService {
+export class AuthService{
+
 
     constructor(private readonly prismaService: PrismaService) { }
 
@@ -89,6 +90,11 @@ export class AuthService {
         }
 
         return this.generateJWT(findUser.name, findUser.id)
+    }
+
+    async googleLogin(user: string) {
+        console.log(user)
+        return user
     }
 
     async verificateConfirmation(token: string) {

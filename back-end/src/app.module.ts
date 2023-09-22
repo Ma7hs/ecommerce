@@ -11,6 +11,8 @@ import { APP_INTERCEPTOR } from "@nestjs/core";
 import { CacheInterceptor, CacheModule } from "@nestjs/cache-manager";
 import * as redisStore from 'cache-manager-redis-store'
 import { UserInterceptor } from "./users/interceptors/users.interceptor";
+import { GoogleStrategy } from "./users/auth/google.strategy";
+import { ConfigModule } from "@nestjs/config";
 
 @Module({
   imports: [
@@ -25,7 +27,8 @@ import { UserInterceptor } from "./users/interceptors/users.interceptor";
       ttl: 10,
       host: "redis",
       port: 6379,
-    })
+    }),
+    ConfigModule.forRoot()
   ],
   controllers: [AppController],
   providers: [
