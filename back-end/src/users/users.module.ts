@@ -8,18 +8,13 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { BalanceService } from './balance/balance.service';
 import { BalanceController } from './balance/balance.controller';
 import { GoogleStrategy } from './auth/google.strategy';
-import { GoogleOauthGuard } from '../guard/google-oauth.guard';
 
 @Module({
   providers: [PrismaService, AuthService, UsersService, BalanceService, GoogleStrategy, {
     provide: APP_INTERCEPTOR,
     useClass: ClassSerializerInterceptor
-  },
-  {
-    provide: APP_GUARD,
-    useClass: GoogleOauthGuard
-  }],
-  controllers: [AuthController, UsersController, BalanceController],
+  }
+],  controllers: [AuthController, UsersController, BalanceController],
   exports: [UsersModule, AuthService, BalanceService],
 })
 export class UsersModule { }

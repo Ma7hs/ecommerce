@@ -23,6 +23,7 @@ export class ProductsController {
     @CacheTTL(10)
     @CacheKey("all-products")
     @UseGuards(AuthGuard)
+    @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
     @Get()
     async findAll(): Promise<ProductDTO[]> {
         return this.productService.findAll();

@@ -13,9 +13,11 @@ import * as redisStore from 'cache-manager-redis-store'
 import { UserInterceptor } from "./users/interceptors/users.interceptor";
 import { GoogleStrategy } from "./users/auth/google.strategy";
 import { ConfigModule } from "@nestjs/config";
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
+    PrismaModule,
     UsersModule,
     ProductsModule,
     FavoritesModule,
@@ -44,7 +46,8 @@ import { ConfigModule } from "@nestjs/config";
     {
       provide: APP_INTERCEPTOR,
       useClass: UserInterceptor 
-    }
+    },
+  
   ]
 })
 export class AppModule {}

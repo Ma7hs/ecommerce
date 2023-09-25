@@ -1,17 +1,23 @@
-import { Body, Controller, Get, Param, Post, UseGuards, Req, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserType } from '@prisma/client'
-import { SignInDTO, SignUpDTO } from './dto/auth.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { GoogleTokenDTO, SignInDTO, SignUpDTO } from './dto/auth.dto';
 import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
-import { GoogleOauthGuard } from 'src/guard/google-oauth.guard';
-import { Request } from 'express';
+import { OAuth2Client } from 'google-auth-library';
+import { GoogleOauthGuard } from '../../guard/google-oauth.guard';
 
+const client = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+)
 
 @Controller('auth')
 export class AuthController {
 
-    constructor(private readonly authService: AuthService) { }
+    constructor(private readonly authService: AuthService) {
+    }
+
+
 
     @Post("signup/customer")
     createCostumer(
@@ -48,23 +54,22 @@ export class AuthController {
         return this.authService.signIn(body)
     }
 
+    @UseInterceptors(CacheInterceptor)
+    @CacheTTL(10)
     @CacheKey("google")
-    @CacheTTL(5)
     @Get('google')
     @UseGuards(GoogleOauthGuard)
-    async googleAuth() {
-        console.log('Rota /auth/google acessada.');
-    }
+    async googleLogin(
+        @Req() req
+    ) {console.log(req)}
 
-    @CacheKey("google")
-    @CacheTTL(5)
     @UseInterceptors(CacheInterceptor)
-    @UseGuards(GoogleOauthGuard)
+    @CacheTTL(10)
+    @CacheKey("redirect")
     @Get('google/redirect')
-    async googleAuthRedirect(@Req() req: Request) {
-        console.log(req)
-        // return await this.authService.googleLogin(req.user);
+    @UseGuards(GoogleOauthGuard)
+    async googleLoginCallback(@Req() req) {
+        return await this.authService.googleLogin(req)
     }
-
 
 }

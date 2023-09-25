@@ -7,15 +7,15 @@ import * as bcrypt from 'bcryptjs';
 import * as nodemailer from 'nodemailer';
 
 @Injectable()
-export class AuthService{
-
-
-    constructor(private readonly prismaService: PrismaService) { }
+export class AuthService {
+    constructor(
+        private readonly prismaService: PrismaService
+    ) { }
 
     async singUpClient({ name, email, password }: SignUPParams, userType: UserType) {
         await this.findEmailByUser(email)
 
-        const hashingPassword = await bcrypt.hash(password, 5);
+        const hashingPassword = await this.hashPassword(password)
 
         const client = await this.prismaService.user.create({
             data: {
@@ -27,14 +27,14 @@ export class AuthService{
         })
 
         await this.sendConfirmationEmail(email, name, client.id)
-        return {message: "Por favor verifique seu email"}
+        return { message: "Por favor verifique seu email" }
 
     }
 
     async singUpColaborator({ name, email, password }: SignUPParams, userType: UserType) {
         await this.findEmailByUser(email)
 
-        const hashingPassword = await bcrypt.hash(password, 5)
+        const hashingPassword = await this.hashPassword(password)
 
         const colaborator = await this.prismaService.user.create({
             data: {
@@ -46,13 +46,13 @@ export class AuthService{
         })
 
         await this.sendConfirmationEmail(email, name, colaborator.id)
-        return {message: "Por favor verifique seu email"}
+        return { message: "Por favor verifique seu email" }
     }
 
     async signUpAdmin({ name, email, password }: SignUPParams, userType: UserType) {
         await this.findEmailByUser(email)
 
-        const hashingPassword = await bcrypt.hash(password, 5)
+        const hashingPassword = await this.hashPassword(password)
 
         const admin = await this.prismaService.user.create({
             data: {
@@ -64,18 +64,18 @@ export class AuthService{
         })
 
         await this.sendConfirmationEmail(email, name, admin.id)
-        return {message: "Por favor verifique seu email"}
+        return { message: "Por favor verifique seu email" }
     }
 
     async signIn({ email, password }: SignINParams) {
         const findUser = await this.findEmailByUser(email)
 
-        if(!findUser){
-            throw new NotFoundException({message: "User not found"})
+        if (!findUser) {
+            throw new NotFoundException({ message: "User not found" })
         }
 
         if (findUser.userType === UserType.CUSTOMER) {
-            if(findUser.confirmed === false){
+            if (findUser.confirmed === false) {
                 throw new UnauthorizedException({ message: "Por favor confirme seu email, voce nao esta autorizado a entrar!" })
             }
         } else if (!findUser) {
@@ -92,15 +92,14 @@ export class AuthService{
         return this.generateJWT(findUser.name, findUser.id)
     }
 
-    async googleLogin(user: string) {
-        console.log(user)
-        return user
+    async googleLogin(req) {
+        return { msg: "created" }
     }
 
     async verificateConfirmation(token: string) {
         const user = await jwt.decode(token, { complete: true })
 
-        const obj = user.payload 
+        const obj = user.payload
         const result = obj[Object.keys(obj)[1]];
 
         const findUser = await this.prismaService.user.findUnique({
@@ -118,20 +117,11 @@ export class AuthService{
             }
         })
 
-        const customer = await this.prismaService.customer.create({
-            data: {
-                userId: findUser.id,
-            }
-        })
+        const customer = await this.createClient(findUser.id)
 
-        await this.prismaService.balance.create({
-            data: {
-                customerId: customer.id,
-                balance: 0
-            }
-        })
+        await this.createBalance(customer.id)
 
-        return {message: "Email verificado com sucesso!"}
+        return { message: "Email verificado com sucesso!" }
 
     }
 
@@ -142,17 +132,29 @@ export class AuthService{
         }, process.env.JSON_WEB_TOKEN_SECRET, {
             expiresIn: 600
         })
-        return { statusCode: 201, message: token}
+        return { statusCode: 201, message: token }
     }
 
-    private async findEmailByUser(email: string) {
-        const user = await this.prismaService.user.findUnique({
-            where: {
-                email: email
+    private async hashPassword(password: string) {
+        return await bcrypt.hash(password, 5);
+    }
+
+    private async createBalance(id: number) {
+        return await this.prismaService.balance.create({
+            data: {
+                customerId: id,
+                balance: 0
             }
         })
+    }
 
-       return user
+    private async createClient(id: number, photo?: string) {
+        return await this.prismaService.customer.create({
+            data: {
+                userId: id,
+                photo
+            }
+        })
     }
 
     private async sendConfirmationEmail(email: string, name: string, id: number) {
@@ -204,7 +206,7 @@ export class AuthService{
                             <table width="80%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
                                 <tr>
                                     <td style="padding: 20px; text-align: center;">
-                                        <p>Olá, ${name }</p>
+                                        <p>Olá, ${name}</p>
                                         <p>Parabéns por se cadastrar em nossa plataforma! Para ativar sua conta, clique no botão abaixo:</p>
                                         <p><a href="http://localhost:8080/signup/confirm/${token}" style="display: inline-block; background-color: #FF6C44; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Confirmar Cadastro</a></p>
                                         <p>Se você não solicitou este cadastro, por favor, ignore este email.</p>
@@ -230,7 +232,7 @@ export class AuthService{
             </body>
             </html>
             `,
-          };
+        };
 
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
@@ -240,6 +242,41 @@ export class AuthService{
                 return "Password has been updated";
             }
         });
+    }
+
+    public async findEmailByUser(email: string) {
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                email: email
+            }
+        })
+
+        return user
+    }
+
+    public async googleSignIn(email: string, name: string, status: boolean, photo: string, token: string) {
+        const user = await this.findEmailByUser(email);
+        const password = await this.hashPassword(token)
+
+        if (!user) {
+            let user = await this.prismaService.user.create({
+                data: {
+                    name,
+                    email,
+                    userType: UserType.CUSTOMER,
+                    confirmed: status,
+                    password
+                }
+            })
+
+            let client = await this.createClient(user.id, photo)
+            await this.createBalance(client.id)
+
+            return await this.generateJWT(user.name, user.id)
+        }
+
+        return await this.generateJWT(user.name, user.id)
+
     }
 
 }
