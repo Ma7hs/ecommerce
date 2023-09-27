@@ -1,6 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import {ProductDTO} from './dto/products.dto'
+import { Injectable, NotFoundException } from '@nestjs/common';
+import {ProductDTO, ProductResponseDTO} from './dto/products.dto'
 import { PrismaService } from '../prisma/prisma.service';
+import {FilterProducts} from './interface/products.interface'
+
+const selectProducts = {
+  id: true,
+  name: true,
+  description: true,
+  price: true,
+  photo: true,
+  productType: true,
+  preparationTime: true,
+}
 
 @Injectable()
 export class ProductService {
@@ -11,8 +22,19 @@ export class ProductService {
     return this.prisma.product.create({ data });
   }
 
-  async findAll(): Promise<ProductDTO[]> {
-    return this.prisma.product.findMany();
+  async findAll(filters: FilterProducts): Promise<ProductDTO[]> {
+    const products = await this.prisma.product.findMany({
+      select: {
+        ...selectProducts,
+      },
+      where: filters
+    });
+
+    if(!products){
+      throw new NotFoundException()
+    };
+
+    return products.map((products) => { return new ProductResponseDTO(products) })
   }
 
   async findOne(id: number): Promise<ProductDTO | null> {

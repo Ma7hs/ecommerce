@@ -1,8 +1,11 @@
 import { ProductType } from "@prisma/client";
 
-export interface FilterProducts{
-    productType?: ProductType,
+export interface FilterProducts {
     name?: string,
-    price?: number,
-    
+    price?: {
+        gte?: number,
+        lte?: number
+    },
+    productType?: ProductType,
+    preparationTime?: number
 }

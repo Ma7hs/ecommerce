@@ -130,7 +130,7 @@ export class AuthService {
             name: name,
             id: id
         }, process.env.JSON_WEB_TOKEN_SECRET, {
-            expiresIn: 600
+            expiresIn: 10000
         })
         return { statusCode: 201, message: token }
     }

@@ -17,8 +17,6 @@ export class AuthGuard implements CanActivate {
             context.getClass(),
         ])
 
-        console.log(roles)
-
         if (roles.length) {
             const request = context.switchToHttp().getRequest()
             const token = request?.headers?.authorization?.split('Bearer ')[1]

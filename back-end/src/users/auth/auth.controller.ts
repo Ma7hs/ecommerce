@@ -1,23 +1,16 @@
 import { Body, Controller, Get, Param, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserType } from '@prisma/client'
-import { GoogleTokenDTO, SignInDTO, SignUpDTO } from './dto/auth.dto';
+import { SignInDTO, SignUpDTO } from './dto/auth.dto';
 import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
-import { OAuth2Client } from 'google-auth-library';
-import { GoogleOauthGuard } from '../../guard/google-oauth.guard';
 
-const client = new OAuth2Client(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-)
+import { GoogleOauthGuard } from '../../guard/google-oauth.guard';
 
 @Controller('auth')
 export class AuthController {
 
     constructor(private readonly authService: AuthService) {
     }
-
-
 
     @Post("signup/customer")
     createCostumer(
