@@ -14,6 +14,7 @@ export class CartController {
     constructor(private readonly cartsByUserService: CartService) { }
 
     @UseGuards(AuthGuard)
+    @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
     @Post()
     createCartByUser(
         @Body() { products, status }: CreateCartDTO,
@@ -27,6 +28,7 @@ export class CartController {
     @CacheKey("all-carts-by-user")
     @UseGuards(AuthGuard)
     @Get()
+    @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
     getAllCartsByUser(
         @User() user: UserInfo
     ) {

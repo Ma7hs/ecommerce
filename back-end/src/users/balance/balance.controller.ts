@@ -12,7 +12,8 @@ export class BalanceController {
     createBalance(
         @Param('movementType', new ParseEnumPipe(MovementType)) movementType: MovementType,
         @Body() {email, value}: UserBalanceDTO
-    ): Promise<UserBalanceDTO>{  
+    ): Promise<UserBalanceDTO> {  
+        console.log(movementType)
         return this.balanceService.balanceCustomer({email, movementType, value});
     }
 

@@ -12,10 +12,6 @@ export class UserBalanceDTO {
     @IsNumber()
     @IsNotEmpty()
     value: number;
-
-    @IsNotEmpty()
-    @IsEnum(MovementType)
-    movementType: MovementType;
 }
 
 export class UserBalanceResponseDTO{
