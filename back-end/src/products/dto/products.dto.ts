@@ -3,17 +3,11 @@ import { IsEnum, IsLowercase, IsNotEmpty, IsNumber, IsString } from 'class-valid
 
 
 export class ProductDTO {
-  @IsNumber()
-  @IsNotEmpty()
-  id: number;
-
   @IsString()
-  @IsLowercase()
   @IsNotEmpty()
   name: string;
 
   @IsString()
-  @IsLowercase()
   @IsNotEmpty()
   description: string;
 
@@ -45,3 +39,14 @@ export class ProductResponseDTO {
     Object.assign(this, partial)
   }
 }
+
+
+export class ProductTypeResponseDTO {
+  id: number;
+  type: string;
+
+  constructor(partial: Partial<ProductTypeResponseDTO>) {
+    Object.assign(this, partial)
+  }
+}
+

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {ProductDTO, ProductResponseDTO} from './dto/products.dto'
+import {ProductDTO, ProductResponseDTO, ProductTypeResponseDTO} from './dto/products.dto'
 import { PrismaService } from '../prisma/prisma.service';
 import {FilterProducts} from './interface/products.interface'
 
@@ -11,6 +11,11 @@ const selectProducts = {
   photo: true,
   productType: true,
   preparationTime: true,
+}
+
+const selectProductTypes = {
+  id: true,
+  type: true
 }
 
 @Injectable()
@@ -34,7 +39,19 @@ export class ProductService {
       throw new NotFoundException()
     };
 
-    return products.map((products) => { return new ProductResponseDTO(products) })
+    return products.map((product) => { return new ProductResponseDTO(product)})
+  }
+
+  async findAllFoodTypes(): Promise<ProductTypeResponseDTO[]>{
+    const types = await this.prisma.productTypeFilter.findMany({
+      select: {
+        ...selectProductTypes
+      }
+    })
+    if(!types){
+      throw new NotFoundException()
+    }
+    return types.map((type) => { return new ProductTypeResponseDTO(type)})
   }
 
   async findOne(id: number): Promise<ProductDTO | null> {

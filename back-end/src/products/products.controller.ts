@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Put, Param, Delete, Patch, ParseIntPipe, UseGuards, UseInterceptors, Query } from '@nestjs/common';
 import { ProductService } from './products.service';
-import { ProductDTO } from './dto/products.dto'
+import { ProductDTO, ProductTypeResponseDTO, ProductResponseDTO } from './dto/products.dto';
 import { AuthGuard } from '../guard/auth.guard';
 import { Roles } from 'src/decorators/roles.decorators';
 import { ProductType, UserType } from '@prisma/client';
@@ -15,7 +15,6 @@ export class ProductsController {
     @Post()
     async create(
         @Body() productData: ProductDTO): Promise<ProductDTO> {
-        console.log(productData);
         return this.productService.create(productData);
     }
 
@@ -32,7 +31,6 @@ export class ProductsController {
         @Query('minPrice') minPrice?: string,
         @Query('maxPrice') maxPrice?: string
     ): Promise<ProductDTO[]> {
-        
         const price = minPrice || maxPrice ? {
             ...(minPrice && { gte: parseFloat(minPrice) }),
             ...(maxPrice && { lte: parseFloat(maxPrice) })
@@ -44,22 +42,30 @@ export class ProductsController {
             ...(preparationTime && { preparationTime}),
             ...(price && { price }),
         }
-
-
         return this.productService.findAll(filters);
+    }
+
+    @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
+    @UseGuards(AuthGuard)
+    @UseInterceptors(CacheInterceptor)
+    @CacheTTL(10)
+    @CacheKey("filter-products")
+    @Get("/types")
+    findAllTypes(): Promise<ProductTypeResponseDTO[]>{
+        return this.productService.findAllFoodTypes();
     }
 
     @Roles(UserType.ADMIN, UserType.COLABORATOR)
     @UseGuards(AuthGuard)
     @Patch(':id')
-    async update(@Param('id', ParseIntPipe) id: number, @Body() productData: ProductDTO): Promise<ProductDTO | null> {
+    update(@Param('id', ParseIntPipe) id: number, @Body() productData: ProductDTO): Promise<ProductDTO | null> {
         return this.productService.update(id, productData);
     }
 
     @Roles(UserType.ADMIN, UserType.COLABORATOR)
     @UseGuards(AuthGuard)
     @Delete(':id')
-    async remove(@Param('id', ParseIntPipe) id: number): Promise<ProductDTO | null> {
+    remove(@Param('id', ParseIntPipe) id: number): Promise<ProductDTO | null> {
         return this.productService.remove(id);
     }
     
