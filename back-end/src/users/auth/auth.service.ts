@@ -13,8 +13,12 @@ export class AuthService {
     ) { }
 
     async singUpClient({ name, email, password }: SignUPParams, userType: UserType) {
-        await this.findEmailByUser(email)
-
+        const findUser = await this.findEmailByUser(email)
+        
+        if(findUser){
+            return {message: "Uma conta com esse email já existe!", statusCode: 401}
+        }
+        
         const hashingPassword = await this.hashPassword(password)
 
         const client = await this.prismaService.user.create({
@@ -27,7 +31,7 @@ export class AuthService {
         })
 
         await this.sendConfirmationEmail(email, name, client.id)
-        return { message: "Por favor verifique seu email" }
+        return { message: "Por favor verifique seu email", statusCode: 201}
 
     }
 
@@ -178,61 +182,80 @@ export class AuthService {
         const mailOptions = {
             from: "Equipe Easy4U",
             to: email,
-            subject: `Solicitação de redefinição de senha`,
+            subject: `Confirmação de conta Easy4U`,
             html: `<!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Confirmação de Cadastro</title>
-            </head>
-            <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin-left: 600px; margin-right: 600px; padding: 0;">
-            
-                <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                    <tr>
-                        <td style="background-color: #FF6C44; text-align: center; padding: 20px;">
-                            <table width="80%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
-                                <tr>
-                                    <td>
-                                        <h1 style="color: #ffffff;">Confirme seu Cadastro</h1>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f4f4f4; text-align: center;">
-                            <table width="80%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
-                                <tr>
-                                    <td style="padding: 20px; text-align: center;">
-                                        <p>Olá, ${name}</p>
-                                        <p>Parabéns por se cadastrar em nossa plataforma! Para ativar sua conta, clique no botão abaixo:</p>
-                                        <p><a href="http://localhost:8080/signup/confirm/${token}" style="display: inline-block; background-color: #FF6C44; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Confirmar Cadastro</a></p>
-                                        <p>Se você não solicitou este cadastro, por favor, ignore este email.</p>
-                                        <p>Obrigado por escolher nossa plataforma!</p>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #FF6C44; text-align: center; padding: 20px;">
-                            <table width="80%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
-                                <tr>
-                                    <td>
-                                        <p style="color: #ffffff;">© 2023 Equipe Easy4U</p>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            
-            </body>
-            </html>
-            `,
-        };
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Confirmação de Cadastro</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+              }
+              .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+              }
+              .header {
+                background-color: #FF6C44;
+                text-align: center;
+                padding: 20px;
+              }
+              .header h1 {
+                color: #ffffff;
+              }
+              .content {
+                background-color: #f4f4f4;
+                text-align: center;
+              }
+              .content p {
+                padding: 20px;
+                text-align: center;
+              }
+              .button {
+                display: inline-block;
+                background-color: #FF6C44;
+                color: #ffffff;
+                padding: 10px 20px;
+                text-decoration: none;
+                border-radius: 5px;
+              }
+              .footer {
+                background-color: #FF6C44;
+                text-align: center;
+                padding: 20px;
+              }
+              .footer p {
+                color: #ffffff;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>Confirme seu Cadastro</h1>
+              </div>
+              <div class="content">
+                <p>Olá, ${name}</p>
+                <p>Parabéns por se cadastrar em nossa plataforma! Para ativar sua conta, clique no botão abaixo:</p>
+                <p><a class="button" href="http://localhost:8080/signup/confirm/${token}">Confirmar Cadastro</a></p>
+                <p>Se você não solicitou este cadastro, por favor, ignore este email.</p>
+                <p>Obrigado por escolher nossa plataforma!</p>
+              </div>
+              <div class="footer">
+                <p>© 2023 Equipe Easy4U</p>
+              </div>
+            </div>
+          </body>
+          </html>
+          `,
+          };          
 
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {

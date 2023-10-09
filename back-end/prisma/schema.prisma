@@ -55,9 +55,9 @@ model MovementExtract {
 model Product {
   id              Int              @id @default(autoincrement())
   name            String
-  description     String
+  description     String           
   price           Float
-  photo           String
+  photo           String   @db.Text        
   preparationTime Int?
   productType     ProductType
   favorite        Favorite[]
@@ -131,7 +131,7 @@ enum ProductType {
   Doces
   Frutas
   Natural
-  PF
+  P
 }
 
 enum StatusCart {

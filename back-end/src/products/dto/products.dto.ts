@@ -1,5 +1,5 @@
 import { ProductType } from '@prisma/client';
-import { IsEnum, IsLowercase, IsNotEmpty, IsNumber, IsString } from 'class-validator'
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
 
 export class ProductDTO {
