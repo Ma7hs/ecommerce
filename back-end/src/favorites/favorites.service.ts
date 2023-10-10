@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { throwError } from 'rxjs';
 import { PrismaService } from '../prisma/prisma.service';
 import { FavoritesResponseDTO } from './dto/favorites.dto';
 
@@ -32,6 +33,7 @@ export class FavoritesService {
             select: {
                 product: {
                     select: {
+                        id: true,
                         name: true,
                         photo: true,
                         price: true
@@ -69,19 +71,32 @@ export class FavoritesService {
             }
         })
 
-        return this.prismaService.favorite.create({
-            data: {
+        const findProducts = await this.prismaService.favorite.findFirst({
+            where: {
                 productId: product.id,
                 customerId: client.id
             }
         })
 
+        if(findProducts){
+            throw new BadRequestException()
+        }
+       
+        await this.prismaService.favorite.create({
+            data: {
+                productId: product.id,
+                customerId: client.id
+            }
+        })
+        
+        return {message: "Favorito adicionado com sucesso!", statusCode: 201}
+
     }
 
-    async deleteFavorite(idCustomer: number, idProduct: number){
-        const client = await this.prismaService.customer.findUnique({
+    async deleteFavorite(idUser: number, idProduct: number){
+        const client = await this.prismaService.user.findUnique({
             where: {
-                id: idCustomer
+                id: idUser
             }
         })
 
@@ -95,7 +110,7 @@ export class FavoritesService {
             }
         })
 
-        return 'Product has been removed from favorites'
+        return {message: "Produto excluido com sucesso!", statusCode: 201}
 
     }
 
