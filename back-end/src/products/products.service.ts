@@ -60,11 +60,13 @@ export class ProductService {
   }
 
   async findAllFoodTypes(): Promise<ProductTypeResponseDTO[]>{
+    console.log("oi")
     const types = await this.prisma.productTypeFilter.findMany({
       select: {
         ...selectProductTypes
       }
     })
+
     if(!types){
       throw new NotFoundException()
     }

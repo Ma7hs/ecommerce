@@ -157,8 +157,9 @@ export class CartService {
                     },
                     qntd: true,
                     total_value: true,
-                },
+                }, 
             },
+            created_at: true
         },
     });
 

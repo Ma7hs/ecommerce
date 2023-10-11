@@ -45,6 +45,17 @@ export class ProductsController {
         return this.productService.findAll(filters);
     }
 
+    @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
+    @UseGuards(AuthGuard)
+    @UseInterceptors(CacheInterceptor)
+    @CacheTTL(10)
+    @CacheKey("filter-products")
+    @Get("/types")
+    findAllTypes(): Promise<ProductTypeResponseDTO[]>{
+        console.log("oi")
+        return this.productService.findAllFoodTypes();
+    }
+
     @UseInterceptors(CacheInterceptor)
     @CacheTTL(10)
     @CacheKey("product")
@@ -55,16 +66,6 @@ export class ProductsController {
         @Param("id", ParseIntPipe) id: number
     ){
         return this.productService.findUnique(id);
-    }
-
-    @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
-    @UseGuards(AuthGuard)
-    @UseInterceptors(CacheInterceptor)
-    @CacheTTL(10)
-    @CacheKey("filter-products")
-    @Get("/types")
-    findAllTypes(): Promise<ProductTypeResponseDTO[]>{
-        return this.productService.findAllFoodTypes();
     }
 
     @Roles(UserType.ADMIN, UserType.COLABORATOR)

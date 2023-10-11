@@ -4,15 +4,14 @@ import {faker} from '@faker-js/faker';
 import * as fakerbr from 'faker-br'
 import { UserType } from '@prisma/client';
 
-const TOTAL_RECORDS = 1000; // Número de registros falsos a serem inseridos
+const TOTAL_RECORDS = 1000;
 
 async function generateFakeData() {
-  const prismaService = new PrismaService(); // Substitua pelo seu serviço Prisma
+  const prismaService = new PrismaService(); 
 
   for (let i = 0; i < TOTAL_RECORDS; i++) {
     const name = faker.person.fullName();
     const email = faker.internet.email();
-    const cpf = fakerbr.br.cpf();
     const password = await bcrypt.hash(faker.internet.password(), 5);
 
     try {
@@ -21,7 +20,7 @@ async function generateFakeData() {
           name,
           email,
           password,
-          userType: UserType.CUSTOMER, // Defina o userType conforme necessário
+          userType: UserType.CUSTOMER, 
         },
       });
       console.log(`Cliente criado: ${client.email}`);
@@ -30,7 +29,7 @@ async function generateFakeData() {
     }
   }
 
-  prismaService.$disconnect(); // Desconecte-se do Prisma quando terminar
+  prismaService.$disconnect();
 }
 
 generateFakeData();
