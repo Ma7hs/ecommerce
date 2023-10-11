@@ -45,6 +45,18 @@ export class ProductsController {
         return this.productService.findAll(filters);
     }
 
+    @UseInterceptors(CacheInterceptor)
+    @CacheTTL(10)
+    @CacheKey("product")
+    @UseGuards(AuthGuard)
+    @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
+    @Get(":id")
+    async getById(
+        @Param("id", ParseIntPipe) id: number
+    ){
+        return this.productService.findUnique(id);
+    }
+
     @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
     @UseGuards(AuthGuard)
     @UseInterceptors(CacheInterceptor)

@@ -42,6 +42,23 @@ export class ProductService {
     return products.map((product) => { return new ProductResponseDTO(product)})
   }
 
+  async findUnique(id: number){
+    const product = await this.prisma.product.findFirst({
+      select: {
+        ...selectProducts
+      },
+      where: {
+        id
+      }
+    })
+
+    if(!product){
+      throw new NotFoundException()
+    }
+
+    return product
+  }
+
   async findAllFoodTypes(): Promise<ProductTypeResponseDTO[]>{
     const types = await this.prisma.productTypeFilter.findMany({
       select: {
@@ -52,10 +69,6 @@ export class ProductService {
       throw new NotFoundException()
     }
     return types.map((type) => { return new ProductTypeResponseDTO(type)})
-  }
-
-  async findOne(id: number) {
-    return await this.prisma.product.findUnique({ where: { id } });
   }
 
   async update(id: number, data: any){
