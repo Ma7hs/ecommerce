@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FilterUsers, UpdateUsersParams } from './interface/users.interface';
-import { UsersResponseDTO } from './dto/users.dto';
+import { UsersResponseDTO, UpdateUserDTO } from './dto/users.dto';
 import { UserType } from '@prisma/client';
 
 const userSelect = {
@@ -92,7 +92,7 @@ export class UsersService {
         }
     }
 
-    async updateUser(data: UpdateUsersParams, id: number): Promise<UsersResponseDTO> {
+    async updateUser(data: UpdateUsersParams, id: number): Promise<object> {
         const user = await this.prismaService.user.findUnique({
             where: {
                 id: id
@@ -103,14 +103,20 @@ export class UsersService {
             throw new NotFoundException()
         }
 
-        const updateUser = await this.prismaService.user.update({
-            data: data,
+        const client = await this.prismaService.customer.findFirst({
             where: {
-                id: id
+                id: user.id
             }
         })
 
-        return new UsersResponseDTO(updateUser)
+        const updateUser = await this.prismaService.customer.update({
+            data: data,
+            where: {
+                id: client.id
+            }
+        })
+
+        return {message: "Conta atualizada com suscesso!", statusCode: 201}
 
     }
 

@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Put, Param, Delete, Patch, ParseIntPipe, UseGuards, UseInterceptors, Query } from '@nestjs/common';
 import { ProductService } from './products.service';
-import { ProductTypeResponseDTO, ProductResponseDTO } from './dto/products.dto';
+import { ProductTypeResponseDTO, ProductResponseDTO, ProductDTO } from './dto/products.dto';
 import { AuthGuard } from '../guard/auth.guard';
 import { Roles } from 'src/decorators/roles.decorators';
 import { ProductType, UserType } from '@prisma/client';
@@ -14,7 +14,7 @@ export class ProductsController {
     @UseGuards(AuthGuard)
     @Post()
     async create(
-        @Body() productData: any) {
+        @Body() productData: ProductDTO) {
         return this.productService.create(productData);
     }
 

@@ -5,7 +5,6 @@ import { IsEmail, IsNotEmpty, IsOptional, IsString } from "class-validator";
 export class UsersResponseDTO{
     name: string;
     email: string;
-    cpf: string;
     userType: UserType;
 
     @Exclude()
@@ -50,5 +49,9 @@ export class UpdateUserDTO {
     @IsNotEmpty()
     @IsString()
     photo: string;
+
+    constructor(partial: Partial<UpdateUserDTO>) {
+        Object.assign(this, partial)
+    }
     
 }

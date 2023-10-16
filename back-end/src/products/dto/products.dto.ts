@@ -1,30 +1,34 @@
 import { ProductType } from '@prisma/client';
-import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator'
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
 
-// export class ProductDTO {
-//   @IsString()
-//   @IsNotEmpty()
-//   name: string;
+export class ProductDTO {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
-//   @IsString()
-//   @IsNotEmpty()
-//   description: string;
+  @IsString()
+  @IsNotEmpty()
+  description: string;
 
-//   @IsNumber()
-//   @IsNotEmpty()
-//   price: number;
+  @IsNumber()
+  @IsNotEmpty()
+  price: number;
 
-//   @IsString()
-//   @IsNotEmpty()
-//   photo: string;
+  @IsString()
+  @IsNotEmpty()
+  photo: string;
 
-//   preparationTime: number;
+  preparationTime: number;
 
-//   @IsNotEmpty()
-//   @IsEnum(ProductType)
-//   productType: ProductType
-// }
+  @IsNotEmpty()
+  @IsEnum(ProductType)
+  productType: ProductType
+
+  @IsNotEmpty()
+  @IsBoolean()
+  disponibility: boolean;
+}
 
 export class ProductResponseDTO {
   id: number;

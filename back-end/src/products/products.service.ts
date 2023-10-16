@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {ProductResponseDTO, ProductTypeResponseDTO} from './dto/products.dto'
+import { ProductResponseDTO, ProductTypeResponseDTO, ProductDTO } from './dto/products.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import {FilterProducts} from './interface/products.interface'
 
@@ -11,6 +11,7 @@ const selectProducts = {
   photo: true,
   productType: true,
   preparationTime: true,
+  disponibility: true
 }
 
 const selectProductTypes = {
@@ -23,8 +24,18 @@ export class ProductService {
 
     constructor(private readonly prisma:PrismaService){}
 
-  async create(data: any): Promise<any> {
-    return this.prisma.product.create({ data });
+  async create(data: ProductDTO): Promise<any> {
+    return this.prisma.product.create({
+      data: {
+        name: data.name,
+        description: data.description,
+        photo: data.photo,
+        price: data.price,
+        productType: data.productType,
+        preparationTime: data.preparationTime,
+        disponibility: data.disponibility
+      }
+     });
   }
 
   async findAll(filters: FilterProducts): Promise<any[]> {
