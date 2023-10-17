@@ -5,6 +5,10 @@ import { SignInDTO, SignUpDTO } from './dto/auth.dto';
 import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 
 import { GoogleOauthGuard } from '../../guard/google-oauth.guard';
+import { User } from '../decorator/user.decorator';
+import { UserInfo } from '../../users/interface/users.interface';
+import { AuthGuard } from '../../guard/auth.guard';
+import { Roles } from 'src/decorators/roles.decorators';
 
 @Controller('auth')
 export class AuthController {
@@ -47,22 +51,13 @@ export class AuthController {
         return this.authService.signIn(body)
     }
 
-    @UseInterceptors(CacheInterceptor)
-    @CacheTTL(10)
-    @CacheKey("google")
-    @Get('google')
-    @UseGuards(GoogleOauthGuard)
-    async googleLogin(
-        @Req() req
-    ) {console.log(req)}
-
-    @UseInterceptors(CacheInterceptor)
-    @CacheTTL(10)
-    @CacheKey("redirect")
-    @Get('google/redirect')
-    @UseGuards(GoogleOauthGuard)
-    async googleLoginCallback(@Req() req) {
-        return await this.authService.googleLogin(req)
+    @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
+    @UseGuards(AuthGuard)
+    @Get("/me")
+    me(
+        @User() user: UserInfo        
+    ){
+        return user
     }
 
 }

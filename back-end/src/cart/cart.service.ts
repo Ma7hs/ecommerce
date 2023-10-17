@@ -170,6 +170,7 @@ export class CartService {
             products: cart.ProductsByCart,
             total: cart.ProductsByCart.reduce((total, product) => total + product.total_value, 0)
         },
+        createdAt: cart.created_at
     }));
 
     return transformedCarts;

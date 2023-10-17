@@ -29,7 +29,8 @@ export class ProductsController {
         @Query('name') name?: string,
         @Query('preparationTime') preparationTime?: number,
         @Query('minPrice') minPrice?: string,
-        @Query('maxPrice') maxPrice?: string
+        @Query('maxPrice') maxPrice?: string,
+        @Query('disponibility') disponibility?: boolean
     ): Promise<any> {
         const price = minPrice || maxPrice ? {
             ...(minPrice && { gte: parseFloat(minPrice) }),
@@ -41,6 +42,7 @@ export class ProductsController {
             ...(name && { name }),
             ...(preparationTime && { preparationTime}),
             ...(price && { price }),
+            ...(disponibility && { disponibility })
         }
         return this.productService.findAll(filters);
     }

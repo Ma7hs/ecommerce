@@ -7,5 +7,6 @@ export interface FilterProducts {
         lte?: number
     },
     productType?: ProductType,
-    preparationTime?: number
+    preparationTime?: number,
+    disponibility?: boolean
 }
