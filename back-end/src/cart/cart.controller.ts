@@ -24,7 +24,7 @@ export class CartController {
     }
 
     @UseInterceptors(CacheInterceptor)
-    @CacheTTL(10)
+    @CacheTTL(1)
     @CacheKey("all-carts-by-user")
     @UseGuards(AuthGuard)
     @Get()
@@ -33,6 +33,19 @@ export class CartController {
         @User() user: UserInfo
     ) {
         return this.cartsByUserService.getCartsByUser(user.id)
+    }
+
+    @UseInterceptors(CacheInterceptor)
+    @CacheTTL(1)
+    @CacheKey("cart-by-id")
+    @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
+    @UseGuards(AuthGuard)
+    @Get(':id')
+    getCartById(
+        @Param("id", ParseIntPipe) id: number
+    ){
+        console.log(id)
+        return this.cartsByUserService.getCartById(id)
     }
 
 

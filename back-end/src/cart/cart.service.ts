@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, UnauthorizedException, UseGuards } from '@nestjs/common';
-import { MovementType} from '@prisma/client';
+import { MovementType } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCartParams, UpdateCartStatus } from './interface/cart.interface';
 
@@ -39,7 +39,7 @@ export class CartService {
     })
 
   }
-  
+
   async createCartByUser({ products, status = 'ACTIVE' }: CreateCartParams, userId: number) {
     const customer = await this.findCustomerById(userId);
     console.log(customer);
@@ -131,52 +131,102 @@ export class CartService {
     console.log(customer);
 
     const findShoppingCart = await this.prismaService.cartsByUser.findFirst({
-        where: {
-            customerId: customer.id
-        }
+      where: {
+        customerId: customer.id
+      }
     });
 
     if (!findShoppingCart) {
-        throw new NotFoundException("User without carts");
+      throw new NotFoundException("User without carts");
     }
 
     const carts = await this.prismaService.cartsByUser.findMany({
-        where: {
-            customerId: customer.id,
-        },
-        select: {
-            id: true,
-            customerId: true,
-            status: true,
-            ProductsByCart: {
-                select: {
-                    product: {
-                        select: {
-                            ...selectProducts
-                        },
-                    },
-                    qntd: true,
-                    total_value: true,
-                }, 
+      where: {
+        customerId: customer.id,
+      },
+      select: {
+        id: true,
+        customerId: true,
+        status: true,
+        ProductsByCart: {
+          select: {
+            product: {
+              select: {
+                ...selectProducts
+              },
             },
-            created_at: true
+            qntd: true,
+            total_value: true,
+          },
         },
+        created_at: true
+      },
     });
 
     const transformedCarts = carts.map((cart) => ({
-        id: cart.id,
-        cart: {
-            status: cart.status,
-            products: cart.ProductsByCart,
-            total: cart.ProductsByCart.reduce((total, product) => total + product.total_value, 0)
-        },
-        createdAt: cart.created_at
+      id: cart.id,
+      cart: {
+        status: cart.status,
+        products: cart.ProductsByCart,
+        total: cart.ProductsByCart.reduce((total, product) => total + product.total_value, 0)
+      },
+      createdAt: cart.created_at
     }));
 
     return transformedCarts;
   }
 
-  async updateStatusCart({id ,cartId, status }: UpdateCartStatus) {
+  async getCartById(id: number) {
+    console.log(id)
+    const cart = await this.prismaService.cartsByUser.findUnique({
+      where: {
+        id: id
+      }
+    })
+
+    if (!cart) {
+      throw new NotFoundException()
+    }
+
+    const findCart = await this.prismaService.cartsByUser.findUnique({
+      where: {
+        id: id
+      },
+      select: {
+        id: true,
+        customerId: true,
+        status: true,
+        ProductsByCart: {
+          select: {
+            product: {
+              select: {
+                ...selectProducts
+              },
+            },
+            qntd: true,
+            total_value: true,
+          },
+        },
+        created_at: true,
+      }
+    })
+
+    const totalValue = findCart.ProductsByCart.reduce((total, product) => total + product.total_value, 0);
+
+    const transformedCart = {
+      id: findCart.id,
+      customerId: findCart.customerId,
+      status: findCart.status,
+      products: findCart.ProductsByCart,
+      total: totalValue,
+      createdAt: findCart.created_at
+    };
+
+    return transformedCart;
+
+  }
+
+  async updateStatusCart({ id, cartId, status }: UpdateCartStatus) {
 
     const customer = await this.findCustomerById(id)
 
@@ -201,7 +251,7 @@ export class CartService {
     return "Status has been updated"
 
   }
-  
+
 
 }
 

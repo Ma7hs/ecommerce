@@ -19,7 +19,7 @@ export class ProductsController {
     }
 
     @UseInterceptors(CacheInterceptor)
-    @CacheTTL(10)
+    @CacheTTL(1)
     @CacheKey("all-products")
     @UseGuards(AuthGuard)
     @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
@@ -50,7 +50,7 @@ export class ProductsController {
     @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
     @UseGuards(AuthGuard)
     @UseInterceptors(CacheInterceptor)
-    @CacheTTL(10)
+    @CacheTTL(1)
     @CacheKey("filter-products")
     @Get("/types")
     findAllTypes(): Promise<ProductTypeResponseDTO[]>{
@@ -59,7 +59,7 @@ export class ProductsController {
     }
 
     @UseInterceptors(CacheInterceptor)
-    @CacheTTL(10)
+    @CacheTTL(1)
     @CacheKey("product")
     @UseGuards(AuthGuard)
     @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
@@ -83,7 +83,9 @@ export class ProductsController {
     @Roles(UserType.ADMIN, UserType.COLABORATOR)
     @UseGuards(AuthGuard)
     @Delete(':id')
-    remove(@Param('id', ParseIntPipe) id: number) {
+    remove(
+        @Param('id', ParseIntPipe) id: number
+    ){
         return this.productService.remove(id);
     }
     
