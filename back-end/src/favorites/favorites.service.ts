@@ -8,11 +8,11 @@ export class FavoritesService {
 
     constructor(private readonly prismaService: PrismaService){}
 
-    async getAllFavorites(idUser: number){
+    async getAllFavorites(userId: number){
 
         const user = await this.prismaService.user.findUnique({
             where: {
-                id: idUser
+                id: userId
             }
         })
 

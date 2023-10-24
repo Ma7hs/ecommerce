@@ -10,7 +10,7 @@ import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 @Controller('favorites')
 export class FavoritesController {
 
-    constructor(private readonly FavoriteService: FavoritesService){}
+    constructor(private readonly favoriteService: FavoritesService){}
 
     @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
     @UseGuards(AuthGuard)
@@ -21,7 +21,7 @@ export class FavoritesController {
     favoriteByUser(
         @User() user: UserInfo
     ){
-        return this.FavoriteService.getAllFavorites(user.id)
+        return this.favoriteService.getAllFavorites(user.id)
     }
 
     @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
@@ -31,7 +31,7 @@ export class FavoritesController {
         @Param('idProduct', ParseIntPipe) idProduct: number,
         @User() user: UserInfo
     ){
-        return this.FavoriteService.createFavorite(user.id, idProduct)
+        return this.favoriteService.createFavorite(user.id, idProduct)
     }
 
     @Roles(UserType.ADMIN, UserType.COLABORATOR, UserType.CUSTOMER)
@@ -41,7 +41,7 @@ export class FavoritesController {
         @Param('idProduct', ParseIntPipe) idProduct: number,
         @User() user: UserInfo
     ){
-        return this.FavoriteService.deleteFavorite(user.id, idProduct)
+        return this.favoriteService.deleteFavorite(user.id, idProduct)
     }
 
 }

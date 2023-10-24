@@ -303,7 +303,18 @@ export class AuthService {
 
     public async me(id: number){
         const user = await this.prismaService.user.findUnique({where: {id: id}})
-        return user
+        const client = await this.prismaService.customer.findFirst({where: {userId: user.id}})
+        const balance = await this.prismaService.balance.findFirst({where: {customerId: client.id}})
+
+        const resposeMe = {
+            name: user.name,
+            email: user.email,
+            photo: client.photo,
+            balance: balance.balance,
+            userType: user.userType
+        }
+        
+        return resposeMe
     }
 
 }
