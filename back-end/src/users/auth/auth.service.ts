@@ -299,7 +299,11 @@ export class AuthService {
         }
 
         return await this.generateJWT(user.name, user.id)
+    }
 
+    public async me(id: number){
+        const user = await this.prismaService.user.findUnique({where: {id: id}})
+        return user
     }
 
 }

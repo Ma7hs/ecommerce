@@ -13,6 +13,7 @@ import * as redisStore from 'cache-manager-redis-store'
 import { UserInterceptor } from "./users/interceptors/users.interceptor";
 import { ConfigModule } from "@nestjs/config";
 import { PrismaModule } from './prisma/prisma.module';
+import { GatewayModule } from './gateway/gateway.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { PrismaModule } from './prisma/prisma.module';
       host: "redis",
       port: 6379,
     }),
-    ConfigModule.forRoot()
+    ConfigModule.forRoot(),
+    GatewayModule
   ],
   controllers: [AppController],
   providers: [

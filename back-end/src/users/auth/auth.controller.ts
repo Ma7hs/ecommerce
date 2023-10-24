@@ -57,7 +57,7 @@ export class AuthController {
     me(
         @User() user: UserInfo        
     ){
-        return user
+        return this.authService.me(user.id)
     }
 
 }
