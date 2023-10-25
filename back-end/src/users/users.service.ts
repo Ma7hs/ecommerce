@@ -109,7 +109,7 @@ export class UsersService {
             }
         })
 
-        const updateUser = await this.prismaService.customer.update({
+        await this.prismaService.customer.update({
             data: data,
             where: {
                 id: client.id
