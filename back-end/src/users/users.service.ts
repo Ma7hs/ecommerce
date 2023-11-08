@@ -92,7 +92,7 @@ export class UsersService {
         }
     }
 
-    async updateUser(data: UpdateUsersParams, id: number): Promise<object> {
+    async updateUser(data: UpdateUsersParams, id: number): Promise<object> {        
         const user = await this.prismaService.user.findUnique({
             where: {
                 id: id
@@ -105,15 +105,15 @@ export class UsersService {
 
         const client = await this.prismaService.customer.findFirst({
             where: {
-                id: user.id
+                userId: user.id
             }
         })
 
         await this.prismaService.customer.update({
-            data: data,
             where: {
                 id: client.id
-            }
+            },
+            data: data
         })
 
         return {message: "Conta atualizada com suscesso!", statusCode: 201}

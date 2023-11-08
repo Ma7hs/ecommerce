@@ -14,6 +14,8 @@ import { UserInterceptor } from "./users/interceptors/users.interceptor";
 import { ConfigModule } from "@nestjs/config";
 import { PrismaModule } from './prisma/prisma.module';
 import { PaymentModule } from './payment/payment.module';
+import { RedisService } from './redis/redis.service';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -31,7 +33,8 @@ import { PaymentModule } from './payment/payment.module';
       port: 6379,
     }),
     ConfigModule.forRoot(),
-    PaymentModule
+    PaymentModule,
+    RedisModule
   ],
   controllers: [AppController],
   providers: [
@@ -48,6 +51,7 @@ import { PaymentModule } from './payment/payment.module';
       provide: APP_INTERCEPTOR,
       useClass: UserInterceptor 
     },
+    RedisService,
   
   ]
 })

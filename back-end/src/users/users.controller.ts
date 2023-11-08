@@ -13,9 +13,9 @@ export class UsersController {
     constructor(private readonly usersService: UsersService){}
 
     @Get()
-    @UseInterceptors(CacheInterceptor)
-    @CacheTTL(10)
-    @CacheKey("all-users")
+    // @UseInterceptors(CacheInterceptor)
+    // @CacheTTL(10)
+    // @CacheKey("all-users")
     @HttpCode(201)
     getAllUsers(
         @Query('userType') userType?: UserType
@@ -39,6 +39,7 @@ export class UsersController {
         @Body() body: UpdateUserDTO,
         @User() user: UserInfo
     ): Promise<unknown>{
+        console.log({body, user})
         return this.usersService.updateUser(body, user.id)
     }
     

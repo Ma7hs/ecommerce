@@ -9,6 +9,9 @@ export class CreateCartDTO {
   @IsNotEmpty()
   @IsArray()
   products: ProductDTO[];
+
+  @IsOptional()
+  preparationTime: number;
 }
 
 class ProductDTO {

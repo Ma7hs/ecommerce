@@ -1,5 +1,5 @@
 import { ProductType } from '@prisma/client';
-import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator'
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator'
 
 
 export class ProductDTO {
@@ -19,6 +19,7 @@ export class ProductDTO {
   @IsNotEmpty()
   photo: string;
 
+  @IsOptional()
   preparationTime: number;
 
   @IsNotEmpty()

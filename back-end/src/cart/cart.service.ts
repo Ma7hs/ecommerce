@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, UnauthorizedException, UseGuards } from 
 import { MovementType } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCartParams, UpdateCartStatus } from './interface/cart.interface';
+import { FilterCarts } from './interface/filters.interface';
 
 const selectProducts = {
   name: true,
@@ -10,6 +11,26 @@ const selectProducts = {
   price: true,
   productType: true,
 }
+
+const selectCarts = {
+  id: true,
+  customerId: true,
+  status: true,
+  ProductsByCart: {
+    select: {
+      product: {
+        select: {
+          ...selectProducts
+        },
+      },
+      qntd: true,
+      total_value: true,
+    },
+  },
+  preparationTime: true,
+  created_at: true,
+}
+
 
 @Injectable()
 export class CartService {
@@ -28,7 +49,7 @@ export class CartService {
     }
 
     return user
-  }
+  };
 
   private async findCustomerById(id: number) {
     const customer = await this.findUserById(id)
@@ -37,10 +58,9 @@ export class CartService {
         userId: customer.id
       }
     })
+  };
 
-  }
-
-  async createCartByUser({ products, status = 'ACTIVE' }: CreateCartParams, userId: number) {
+  async createCartByUser({ products, status = 'ACTIVE', preparationTime }: CreateCartParams, userId: number) {
     const customer = await this.findCustomerById(userId);
     console.log(customer);
 
@@ -70,7 +90,8 @@ export class CartService {
     const cart = await this.prismaService.cartsByUser.create({
       data: {
         customerId: customer.id,
-        status: status
+        status: status,
+        preparationTime: preparationTime
       },
     });
 
@@ -123,12 +144,11 @@ export class CartService {
       },
     });
 
-    return 'Cart has been created';
-  }
+    return { message: "Cart has been created", statusCode: 201 };
+  };
 
   async getCartsByUser(id: number) {
     const customer = await this.findCustomerById(id);
-    console.log(customer);
 
     const findShoppingCart = await this.prismaService.cartsByUser.findFirst({
       where: {
@@ -142,24 +162,10 @@ export class CartService {
 
     const carts = await this.prismaService.cartsByUser.findMany({
       where: {
-        customerId: customer.id,
+        customerId: customer.id
       },
       select: {
-        id: true,
-        customerId: true,
-        status: true,
-        ProductsByCart: {
-          select: {
-            product: {
-              select: {
-                ...selectProducts
-              },
-            },
-            qntd: true,
-            total_value: true,
-          },
-        },
-        created_at: true
+        ...selectCarts
       },
     });
 
@@ -170,14 +176,14 @@ export class CartService {
         products: cart.ProductsByCart,
         total: cart.ProductsByCart.reduce((total, product) => total + product.total_value, 0)
       },
+      preparationTime: cart.preparationTime,
       createdAt: cart.created_at
     }));
 
     return transformedCarts;
-  }
+  };
 
   async getCartById(id: number) {
-    console.log(id)
     const cart = await this.prismaService.cartsByUser.findUnique({
       where: {
         id: id
@@ -193,21 +199,7 @@ export class CartService {
         id: id
       },
       select: {
-        id: true,
-        customerId: true,
-        status: true,
-        ProductsByCart: {
-          select: {
-            product: {
-              select: {
-                ...selectProducts
-              },
-            },
-            qntd: true,
-            total_value: true,
-          },
-        },
-        created_at: true,
+        ...selectCarts
       }
     })
 
@@ -219,39 +211,50 @@ export class CartService {
       status: findCart.status,
       products: findCart.ProductsByCart,
       total: totalValue,
+      preparationTime: findCart.preparationTime,
       createdAt: findCart.created_at
     };
 
     return transformedCart;
 
-  }
+  };
+
+  async getCartWithPreparationTime() {
+    return await this.prismaService.cartsByUser.findMany({
+      select: {
+        ...selectCarts
+      },
+      where: {
+        preparationTime: {
+          not: null,
+        },
+      },
+    });
+  };
 
   async updateStatusCart({ id, cartId, status }: UpdateCartStatus) {
 
-    const customer = await this.findCustomerById(id)
+  const customer = await this.findCustomerById(id)
 
-    const cart = await this.prismaService.cartsByUser.findUnique({
-      where: {
-        id: cartId,
-        customerId: customer.id
-      }
-    })
-
-    if (!cart) {
-      throw new NotFoundException()
+  const cart = await this.prismaService.cartsByUser.findUnique({
+    where: {
+      id: cartId,
+      customerId: customer.id
     }
+  })
 
-    await this.prismaService.cartsByUser.update({
-      data: {
-        status: status
-      },
-      where: cart
-    })
-
-    return "Status has been updated"
-
+  if (!cart) {
+    throw new NotFoundException()
   }
 
+  await this.prismaService.cartsByUser.update({
+    data: {
+      status: status
+    },
+    where: cart
+  })
 
+  return {message: "Status has been updated", statusCode: 201}
+  };
 }
 
