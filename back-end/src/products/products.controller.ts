@@ -54,7 +54,6 @@ export class ProductsController {
     @CacheKey("filter-products")
     @Get("/types")
     findAllTypes(): Promise<ProductTypeResponseDTO[]>{
-        console.log("oi")
         return this.productService.findAllFoodTypes();
     }
 

@@ -14,8 +14,7 @@ import { UserInterceptor } from "./users/interceptors/users.interceptor";
 import { ConfigModule } from "@nestjs/config";
 import { PrismaModule } from './prisma/prisma.module';
 import { PaymentModule } from './payment/payment.module';
-import { RedisService } from './redis/redis.service';
-import { RedisModule } from './redis/redis.module';
+import type { RedisClientOptions } from 'redis';
 
 @Module({
   imports: [
@@ -25,16 +24,19 @@ import { RedisModule } from './redis/redis.module';
     FavoritesModule,
     ForgotPasswordModule,
     CartModule,
+    PaymentModule,
+    ConfigModule.forRoot(),
     CacheModule.register({
       store: redisStore,
       isGlobal: true,
       ttl: 10,
       host: "redis",
       port: 6379,
-    }),
-    ConfigModule.forRoot(),
-    PaymentModule,
-    RedisModule
+      refresher: {
+        interval: 1000, 
+        events: ["UPDATE", "DELETE"]
+      },
+    })
   ],
   controllers: [AppController],
   providers: [
@@ -50,9 +52,7 @@ import { RedisModule } from './redis/redis.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: UserInterceptor 
-    },
-    RedisService,
-  
+    }
   ]
 })
 export class AppModule {}

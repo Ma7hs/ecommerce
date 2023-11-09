@@ -25,7 +25,7 @@ export class CartController {
     };
 
     @UseInterceptors(CacheInterceptor)
-    @CacheTTL(1)
+    @CacheTTL(10)
     @CacheKey("all-carts-by-user")
     @UseGuards(AuthGuard)
     @Get()
@@ -38,7 +38,7 @@ export class CartController {
 
 
     @UseInterceptors(CacheInterceptor)
-    @CacheTTL(1)
+    @CacheTTL(10)
     @CacheKey("cart-by-id")
     @Get(':id')
     getCartById(
