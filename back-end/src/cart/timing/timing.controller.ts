@@ -15,4 +15,12 @@ export class TimingController {
         return this.cartService.getCartWithPreparationTime()
     }
 
+    @UseInterceptors(CacheInterceptor)
+    @CacheTTL(10)
+    @CacheKey("carts-disabled")
+    @Get("carts-disable")
+    getCartsFinished(){
+        return this.cartService.getCartWithStatusDisable()
+    }
+
 }

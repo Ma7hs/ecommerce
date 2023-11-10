@@ -29,6 +29,15 @@ const selectCarts = {
   },
   preparationTime: true,
   created_at: true,
+  customer: {
+    select: {
+      user: {
+        select: {
+          email: true
+        }
+      }
+    }
+  }
 }
 
 
@@ -203,11 +212,13 @@ export class CartService {
       }
     })
 
+
+
     const totalValue = findCart.ProductsByCart.reduce((total, product) => total + product.total_value, 0);
 
     const transformedCart = {
       id: findCart.id,
-      customerId: findCart.customerId,
+      customerEmail: findCart.customer.user.email,
       status: findCart.status,
       products: findCart.ProductsByCart,
       total: totalValue,
@@ -232,29 +243,55 @@ export class CartService {
     });
   };
 
-  async updateStatusCart({ id, cartId, status }: UpdateCartStatus) {
+  async getCartWithStatusDisable() {
+    const carts = await this.prismaService.cartsByUser.findMany({
+      where: {
+        status: {
+          not: "ACTIVE"
+        }
+      },
+      select: {
+        ...selectCarts
+      }
+    })
 
-  const customer = await this.findCustomerById(id)
+    const transformedCart = carts.map(cart => ({
+      id: cart.id,
+      customerEmail: cart.customer.user.email,
+      customerId: cart.customerId,
+      status: cart.status,
+      produtos: cart.ProductsByCart,
+      preparationTime: cart.preparationTime,
+      created_at: cart.created_at,
+    }))
 
-  const cart = await this.prismaService.cartsByUser.findUnique({
-    where: {
-      id: cartId,
-      customerId: customer.id
-    }
-  })
+    return transformedCart
 
-  if (!cart) {
-    throw new NotFoundException()
   }
 
-  await this.prismaService.cartsByUser.update({
-    data: {
-      status: status
-    },
-    where: cart
-  })
+  async updateStatusCart({ id, cartId, status }: UpdateCartStatus) {
 
-  return {message: "Status has been updated", statusCode: 201}
+    const customer = await this.findCustomerById(id)
+
+    const cart = await this.prismaService.cartsByUser.findUnique({
+      where: {
+        id: cartId,
+        customerId: customer.id
+      }
+    })
+
+    if (!cart) {
+      throw new NotFoundException()
+    }
+
+    await this.prismaService.cartsByUser.update({
+      data: {
+        status: status
+      },
+      where: cart
+    })
+
+    return { message: "Status has been updated", statusCode: 201 }
   };
 }
 
