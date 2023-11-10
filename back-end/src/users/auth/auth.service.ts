@@ -244,7 +244,7 @@ export class AuthService {
               <div class="content">
                 <p>Olá, ${name}</p>
                 <p>Parabéns por se cadastrar em nossa plataforma! Para ativar sua conta, clique no botão abaixo:</p>
-                <p><a class="button" href="http://localhost:8080/signup/confirm/${token}">Confirmar Cadastro</a></p>
+                <button><a class="button" href="http://localhost:8080/signup/confirm/${token}">Confirmar Cadastro</a></button>
                 <p>Se você não solicitou este cadastro, por favor, ignore este email.</p>
                 <p>Obrigado por escolher nossa plataforma!</p>
               </div>
