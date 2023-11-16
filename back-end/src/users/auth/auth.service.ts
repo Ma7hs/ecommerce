@@ -244,7 +244,7 @@ export class AuthService {
               <div class="content">
                 <p>Olá, ${name}</p>
                 <p>Parabéns por se cadastrar em nossa plataforma! Para ativar sua conta, clique no botão abaixo:</p>
-                <button><a class="button" href="http://localhost:8080/signup/confirm/${token}">Confirmar Cadastro</a></button>
+                <button><a class="button" href="http://localhost:3001/signup/confirm/${token}">Confirmar Cadastro</a></button>
                 <p>Se você não solicitou este cadastro, por favor, ignore este email.</p>
                 <p>Obrigado por escolher nossa plataforma!</p>
               </div>
@@ -268,6 +268,8 @@ export class AuthService {
     }
 
     public async findEmailByUser(email: string) {
+        console.log("oi")
+
         const user = await this.prismaService.user.findUnique({
             where: {
                 email: email

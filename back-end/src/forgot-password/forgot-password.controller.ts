@@ -28,18 +28,21 @@ export class ForgotPasswordController {
         @Body() {password} : UpdatePasswordDTO
     ){
         const newToken = token.split(' ')[0]
-        console.log(newToken)
-        console.log(id)
-        console.log(password)
+    
         await jwt.verify(newToken, process.env.JSON_WEB_TOKEN_SECRET, async (err, decoded) => {
             if(err){
                 console.log(err)
                 throw new UnauthorizedException()
             } else {
                 const hashPassword = await bcrypt.hash(password, 5)
-                return this.password.updatePassword(id, hashPassword)
+                this.password.updatePassword(id, hashPassword)
+               
             }
         })
+
+        return {message: "Senha atualizada com sucesso!", statusCode: 201}
+
+
     }
 
 }

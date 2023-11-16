@@ -38,7 +38,7 @@ export class CartController {
 
 
     @UseInterceptors(CacheInterceptor)
-    @CacheTTL(10)
+    @CacheTTL(1)
     @CacheKey("cart-by-id")
     @Get(':id')
     getCartById(

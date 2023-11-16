@@ -15,6 +15,8 @@ export class ProductsController {
     @Post()
     async create(
         @Body() productData: ProductDTO) {
+        console.log(productData);
+        console.log(productData.preparationTime)
         return this.productService.create(productData);
     }
 
