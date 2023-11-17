@@ -52,10 +52,10 @@ export class CartController {
     @Patch(':cartId')
     updateStatusCart(
         @Body() { status }: UpdateStatusCartDTO,
-        @User() { id }: UserInfo,
         @Param('cartId', new ParseIntPipe) cartId: number
     ) {
-        return this.cartsByUserService.updateStatusCart({ id, cartId, status })
+        console.log("Controller")
+        return this.cartsByUserService.updateStatusCart({cartId, status })
     };
 
 }

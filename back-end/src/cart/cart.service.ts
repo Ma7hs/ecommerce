@@ -231,7 +231,7 @@ export class CartService {
   };
 
   async getCartWithPreparationTime() {
-    return await this.prismaService.cartsByUser.findMany({
+    const cartsWithPreparationTime = await this.prismaService.cartsByUser.findMany({
       select: {
         ...selectCarts
       },
@@ -241,7 +241,26 @@ export class CartService {
         },
       },
     });
+  
+    const transformedCarts = await Promise.all(cartsWithPreparationTime.map(async (cart) => {
+      const totalValue = cart.ProductsByCart.reduce((total, product) => total + product.total_value, 0);
+      
+      const transformedCart = {
+        id: cart.id,
+        customerEmail: cart.customer.user.email,
+        status: cart.status,
+        products: cart.ProductsByCart,
+        total: totalValue,
+        preparationTime: cart.preparationTime,
+        createdAt: cart.created_at
+      };
+  
+      return transformedCart;
+    }));
+  
+    return transformedCarts;
   };
+  
 
   async getCartWithStatusDisable() {
     const carts = await this.prismaService.cartsByUser.findMany({
@@ -269,27 +288,23 @@ export class CartService {
 
   }
 
-  async updateStatusCart({ id, cartId, status }: UpdateCartStatus) {
-
-    const customer = await this.findCustomerById(id)
-
+  async updateStatusCart({ cartId, status }: UpdateCartStatus) {
     const cart = await this.prismaService.cartsByUser.findUnique({
       where: {
-        id: cartId,
-        customerId: customer.id
+        id: cartId
       }
-    })
+    });
 
     if (!cart) {
       throw new NotFoundException()
-    }
+    };
 
     await this.prismaService.cartsByUser.update({
       data: {
         status: status
       },
       where: cart
-    })
+    });
 
     return { message: "Status has been updated", statusCode: 201 }
   };
