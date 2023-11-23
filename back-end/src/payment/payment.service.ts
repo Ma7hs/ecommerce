@@ -6,13 +6,11 @@ import { PixRequestDTO } from './dto/pix.dto';
 export class PaymentService {
   async createOrderPix(requestBody: PixRequestDTO) {
     const url = 'https://sandbox.api.pagseguro.com/orders';
-    const token = '4D928E6816FF4126B4C3CB4C5985154F';
+    const token = 'D45AC97034604500BE131589914021B5';
 
     try {
       const response = await axios.post(url, requestBody, {
         headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
           Authorization: `Bearer ${token}`
         }
       });

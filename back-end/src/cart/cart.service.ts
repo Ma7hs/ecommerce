@@ -5,6 +5,7 @@ import { CreateCartParams, UpdateCartStatus } from './interface/cart.interface';
 import { FilterCarts } from './interface/filters.interface';
 
 const selectProducts = {
+  id: true,
   name: true,
   photo: true,
   description: true,
@@ -31,6 +32,7 @@ const selectCarts = {
   created_at: true,
   customer: {
     select: {
+      photo: true,
       user: {
         select: {
           email: true
@@ -219,6 +221,7 @@ export class CartService {
     const transformedCart = {
       id: findCart.id,
       customerEmail: findCart.customer.user.email,
+      customerPhoto: findCart.customer.photo,
       status: findCart.status,
       products: findCart.ProductsByCart,
       total: totalValue,
@@ -248,6 +251,7 @@ export class CartService {
       const transformedCart = {
         id: cart.id,
         customerEmail: cart.customer.user.email,
+        custumerPhoto: cart.customer.photo,
         status: cart.status,
         products: cart.ProductsByCart,
         total: totalValue,
