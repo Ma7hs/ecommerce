@@ -24,6 +24,7 @@ jobs:
       - name: Enter in folder
         run: 
           cd back-end
+          ls
 
       - name: installing dependecies
         run:
