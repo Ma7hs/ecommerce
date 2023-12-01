@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy Node.js app to Azure Web App - backend-easy4u
 
 on:
@@ -14,27 +11,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
-          
-      - name: Enter in folder
-        run: 
-          cd back-end
 
       - name: List archives
-        run: 
-          ls
+        run: ls
 
-      - name: installing dependecies
-        run:
-          npm install --force
+      - name: Install dependencies
+        run: npm install --force
+        working-directory: back-end
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: zip release.zip back-end/* -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
@@ -56,13 +49,13 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip
-      
+        run: unzip release.zip -d ./back-end
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'backend-easy4u'
           slot-name: 'Production'
-          package: .
+          package: ./back-end
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_AC6549F3B20342A3B95BCF65FC00FDB0 }}
