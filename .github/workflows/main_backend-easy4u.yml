@@ -20,10 +20,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
-
-      - name: npm install, build
+          
+      - name: Enter in folder
         run: 
           cd back-end
+
+      - name: installing dependecies
+        run:
           npm install --force
 
       - name: Zip artifact for deployment
